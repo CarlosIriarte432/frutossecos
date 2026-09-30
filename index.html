@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frutos del Sol | Frutos Secos & Snacks Saludables</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fdfbf7',
+                            100: '#f7f2e8',
+                            200: '#eee2cd',
+                            500: '#d97706',
+                            600: '#b45309',
+                            800: '#2b3924',
+                            900: '#1c2617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#fcfaf7] text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-brand-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-full bg-brand-800 text-amber-400 flex items-center justify-center font-bold text-xl shadow flex-shrink-0 group-hover:scale-105 transition-transform">
+                    <i data-lucide="nut" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-bold text-brand-900 block leading-tight">Frutos del Sol</span>
+                    <span class="text-xs text-amber-700 tracking-wider uppercase font-semibold">100% Natural</span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center gap-8 font-medium text-gray-600">
+                <a href="#inicio" class="hover:text-brand-600 transition-colors">Inicio</a>
+                <a href="#catalogo" class="hover:text-brand-600 transition-colors">Catálogo</a>
+                <a href="#beneficios" class="hover:text-brand-600 transition-colors">Nosotros</a>
+                <a href="#contacto" class="hover:text-brand-600 transition-colors">Contacto</a>
+            </nav>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+                <!-- Search Input -->
+                <div class="relative hidden sm:block">
+                    <input type="text" id="search-input" placeholder="Buscar fruto, semilla..." 
+                        class="pl-9 pr-4 py-2 text-sm rounded-full bg-brand-50 border border-brand-200 focus:outline-none focus:ring-2 focus:ring-amber-500 w-48 lg:w-64 transition-all">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
+                </div>
+
+                <!-- Cart Toggle Button -->
+                <button id="cart-toggle-btn" class="relative p-2.5 rounded-full bg-brand-100 text-brand-800 hover:bg-brand-200 transition-all focus:outline-none">
+                    <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center opacity-0 scale-75 transition-all">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section id="inicio" class="relative bg-gradient-to-b from-brand-100/60 to-[#fcfaf7] pt-12 pb-20 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6 text-center md:text-left">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold tracking-wide uppercase">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Cosecha Fresca & Calidad Selección
+                    </span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-900 leading-tight">
+                        Energía natural para tu día a día
+                    </h1>
+                    <p class="text-lg text-gray-600 max-w-xl mx-auto md:mx-0">
+                        Los mejores frutos secos, semillas seleccionadas y mixes artesanales. Venta a granel y empaques sustentables directamente a tu puerta.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
+                        <a href="#catalogo" class="px-8 py-3.5 rounded-xl bg-brand-800 text-white font-semibold shadow-lg hover:bg-brand-900 transition-all text-center flex items-center justify-center gap-2">
+                            Ver Productos <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#beneficios" class="px-8 py-3.5 rounded-xl bg-white border border-brand-200 text-brand-900 font-semibold hover:bg-brand-50 transition-all text-center">
+                            Saber Más
+                        </a>
+                    </div>
+                </div>
+                <div class="relative flex justify-center">
+                    <div class="w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-amber-200/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-3xl -z-10"></div>
+                    <img src="https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&q=80&w=800" 
+                         alt="Variedad de Frutos Secos" 
+                         class="rounded-3xl shadow-2xl object-cover w-full max-w-md h-[380px] hover:scale-[1.02] transition-transform duration-500">
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Banner -->
+        <section id="beneficios" class="py-12 bg-white border-y border-brand-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
+                        <div class="p-3 bg-amber-100 text-amber-800 rounded-lg">
+                            <i data-lucide="truck" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-brand-900">Envíos Rápidos</h3>
+                            <p class="text-xs text-gray-500">Despacho en 24/48 horas</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
+                        <div class="p-3 bg-amber-100 text-amber-800 rounded-lg">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-brand-900">Calidad Calificada</h3>
+                            <p class="text-xs text-gray-500">Selección 100% premium</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
+                        <div class="p-3 bg-amber-100 text-amber-800 rounded-lg">
+                            <i data-lucide="leaf" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-brand-900">Eco Friendly</h3>
+                            <p class="text-xs text-gray-500">Empaques reciclables</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
+                        <div class="p-3 bg-amber-100 text-amber-800 rounded-lg">
+                            <i data-lucide="scale" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-brand-900">Venta a Granel</h3>
+                            <p class="text-xs text-gray-500">Paga justo por el peso</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Catalog Section -->
+        <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-brand-900">Nuestros Productos</h2>
+                    <p class="text-gray-600 mt-1">Explora nuestra gama de frutos secos, semillas y mixes saludables.</p>
+                </div>
+                
+                <!-- Category Filters -->
+                <div id="category-filters" class="flex flex-wrap gap-2">
+                    <button data-category="all" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-brand-800 text-white">Todos</button>
+                    <button data-category="frutos-secos" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Frutos Secos</button>
+                    <button data-category="semillas" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Semillas</button>
+                    <button data-category="mixes" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Mixes</button>
+                    <button data-category="deshidratados" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Deshidratados</button>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Se renderizan dinámicamente con JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Shopping Cart Overlay Drawer -->
+    <div id="cart-drawer-overlay" class="fixed inset-0 bg-black/50 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 translate-x-full transition-transform duration-300 flex flex-col">
+            <!-- Cart Header -->
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-brand-50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-800"></i>
+                    <h2 class="text-lg font-bold text-brand-900">Carrito de Compras</h2>
+                </div>
+                <button id="close-cart-btn" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items List -->
+            <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
+                <!-- Se poblará vía JS -->
+            </div>
+
+            <!-- Cart Footer -->
+            <div class="p-6 border-t border-gray-100 bg-gray-50 space-y-4">
+                <div class="flex justify-between items-center text-lg font-bold text-gray-900">
+                    <span>Total:</span>
+                    <span id="cart-total-price">$0</span>
+                </div>
+                <button id="checkout-btn" class="w-full py-3.5 bg-brand-800 text-white rounded-xl font-semibold shadow hover:bg-brand-900 transition-all flex items-center justify-center gap-2">
+                    Finalizar Compra <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-brand-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 translate-y-20 opacity-0 transition-all z-50">
+        <i data-lucide="check-circle" class="w-5 h-5 text-amber-400"></i>
+        <span id="toast-message" class="text-sm font-medium">Producto agregado</span>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contacto" class="bg-brand-900 text-white py-12 border-t border-brand-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-amber-500 text-brand-900 flex items-center justify-center font-bold">
+                        <i data-lucide="nut" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-xl font-bold">Frutos del Sol</span>
+                </div>
+                <p class="text-brand-200/70 text-sm leading-relaxed">
+                    Tu tienda de confianza para frutos secos, semillas y snacks 100% naturales. Comprometidos con tu salud y el medio ambiente.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-amber-400">Contacto</h4>
+                <ul class="space-y-2 text-sm text-brand-200/70">
+                    <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> contacto@frutosdelsol.cl</li>
+                    <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> +56 9 1234 5678</li>
+                    <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> Envíos a todo el país</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-amber-400">Horario de Atención</h4>
+                <p class="text-sm text-brand-200/70 leading-relaxed">
+                    Lunes a Viernes: 09:00 - 18:00 hrs<br>
+                    Sábados: 10:00 - 14:00 hrs
+                </p>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-brand-800/60 text-center text-xs text-brand-200/50">
+            &copy; 2026 Frutos del Sol. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+</body>
+</html>

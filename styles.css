@@ -1,0 +1,38 @@
+/* Custom styles & Scrollbar customizations */
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #fdfbf7;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d97706;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b45309;
+}
+
+/* Base utilities for transitions */
+.filter-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Image zoom effect on hover */
+.product-card-img {
+  transition: transform 0.3s ease-in-out;
+}
+
+.product-card:hover .product-card-img {
+  transform: scale(1.05);
+}
