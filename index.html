@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frutos del Sol | Frutos Secos & Snacks Saludables</title>
+    <title>NutraNuts | Frutos Secos & Snacks Saludables</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -17,15 +17,16 @@
                             200: '#eee2cd',
                             500: '#d97706',
                             600: '#b45309',
-                            800: '#2b3924',
-                            900: '#1c2617',
-                        }
+                            800: '#5c2c16',
+                            900: '#3a1a0c',
+                        },
+                        nutraYellow: '#facc15',
                     }
                 }
             }
         }
     </script>
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="styles.css">
@@ -35,36 +36,39 @@
     <!-- Header / Navbar -->
     <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-brand-100 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <!-- Logo -->
-            <a href="#" class="flex items-center gap-3 group">
-                <div class="w-10 h-10 rounded-full bg-brand-800 text-amber-400 flex items-center justify-center font-bold text-xl shadow flex-shrink-0 group-hover:scale-105 transition-transform">
-                    <i data-lucide="nut" class="w-6 h-6"></i>
-                </div>
-                <div>
-                    <span class="text-xl font-bold text-brand-900 block leading-tight">Frutos del Sol</span>
-                    <span class="text-xs text-amber-700 tracking-wider uppercase font-semibold">100% Natural</span>
+            <!-- Logo NutraNuts -->
+            <a href="javascript:void(0)" class="flex items-center gap-3 group">
+                <img src="logo.jpg" alt="NutraNuts Frutos Secos" class="h-12 w-auto object-contain hidden sm:block" onerror="this.style.display='none'; document.getElementById('fallback-logo').style.display='flex';">
+                
+                <div id="fallback-logo" class="flex items-center rounded-lg overflow-hidden border border-amber-600/20 shadow-sm">
+                    <div class="bg-amber-400 text-black px-2.5 py-1 flex flex-col justify-center items-start">
+                        <span class="font-extrabold text-base leading-none tracking-tight">Nutra</span>
+                        <span class="text-[9px] font-bold tracking-widest uppercase">Frutos</span>
+                    </div>
+                    <div class="bg-brand-800 text-white px-2.5 py-1 flex flex-col justify-center items-start">
+                        <span class="font-extrabold text-base leading-none tracking-tight">Nuts</span>
+                        <span class="text-[9px] font-bold tracking-widest uppercase">Secos</span>
+                    </div>
                 </div>
             </a>
 
             <!-- Navigation Links -->
             <nav class="hidden md:flex items-center gap-8 font-medium text-gray-600">
                 <a href="#inicio" class="hover:text-brand-600 transition-colors">Inicio</a>
-                <a href="#catalogo" class="hover:text-brand-600 transition-colors">Catálogo</a>
-                <a href="#beneficios" class="hover:text-brand-600 transition-colors">Nosotros</a>
+                <a href="#catalogo" class="hover:text-brand-600 transition-colors">Productos</a>
+                <a href="#nosotros" class="hover:text-brand-600 transition-colors">Nosotros</a>
                 <a href="#contacto" class="hover:text-brand-600 transition-colors">Contacto</a>
             </nav>
 
             <!-- Actions -->
             <div class="flex items-center gap-4">
-                <!-- Search Input -->
                 <div class="relative hidden sm:block">
-                    <input type="text" id="search-input" placeholder="Buscar fruto, semilla..." 
+                    <input type="text" id="search-input" placeholder="Buscar almendras, nueces..." 
                         class="pl-9 pr-4 py-2 text-sm rounded-full bg-brand-50 border border-brand-200 focus:outline-none focus:ring-2 focus:ring-amber-500 w-48 lg:w-64 transition-all">
                     <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-2.5"></i>
                 </div>
 
-                <!-- Cart Toggle Button -->
-                <button id="cart-toggle-btn" class="relative p-2.5 rounded-full bg-brand-100 text-brand-800 hover:bg-brand-200 transition-all focus:outline-none">
+                <button id="cart-toggle-btn" type="button" class="relative p-2.5 rounded-full bg-brand-100 text-brand-800 hover:bg-brand-200 transition-all focus:outline-none">
                     <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                     <span id="cart-badge" class="absolute -top-1 -right-1 bg-amber-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center opacity-0 scale-75 transition-all">0</span>
                 </button>
@@ -77,8 +81,8 @@
         <section id="inicio" class="relative bg-gradient-to-b from-brand-100/60 to-[#fcfaf7] pt-12 pb-20 overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
                 <div class="space-y-6 text-center md:text-left">
-                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold tracking-wide uppercase">
-                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Cosecha Fresca & Calidad Selección
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold tracking-wide uppercase">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-700"></i> La Serena ~ Coquimbo
                     </span>
                     <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-brand-900 leading-tight">
                         Energía natural para tu día a día
@@ -90,15 +94,15 @@
                         <a href="#catalogo" class="px-8 py-3.5 rounded-xl bg-brand-800 text-white font-semibold shadow-lg hover:bg-brand-900 transition-all text-center flex items-center justify-center gap-2">
                             Ver Productos <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
-                        <a href="#beneficios" class="px-8 py-3.5 rounded-xl bg-white border border-brand-200 text-brand-900 font-semibold hover:bg-brand-50 transition-all text-center">
+                        <a href="#nosotros" class="px-8 py-3.5 rounded-xl bg-white border border-brand-200 text-brand-900 font-semibold hover:bg-brand-50 transition-all text-center">
                             Saber Más
                         </a>
                     </div>
                 </div>
                 <div class="relative flex justify-center">
                     <div class="w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-amber-200/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 blur-3xl -z-10"></div>
-                    <img src="https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&q=80&w=800" 
-                         alt="Variedad de Frutos Secos" 
+                    <img src="https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=800&q=80" 
+                         alt="Variedad de Frutos Secos NutraNuts" 
                          class="rounded-3xl shadow-2xl object-cover w-full max-w-md h-[380px] hover:scale-[1.02] transition-transform duration-500">
                 </div>
             </div>
@@ -113,8 +117,8 @@
                             <i data-lucide="truck" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-brand-900">Envíos Rápidos</h3>
-                            <p class="text-xs text-gray-500">Despacho en 24/48 horas</p>
+                            <h3 class="font-semibold text-brand-900">Envíos Locales</h3>
+                            <p class="text-xs text-gray-500">La Serena y Coquimbo</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
@@ -122,8 +126,8 @@
                             <i data-lucide="shield-check" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-brand-900">Calidad Calificada</h3>
-                            <p class="text-xs text-gray-500">Selección 100% premium</p>
+                            <h3 class="font-semibold text-brand-900">Calidad Premium</h3>
+                            <p class="text-xs text-gray-500">Selección 100% fresca</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
@@ -132,7 +136,7 @@
                         </div>
                         <div>
                             <h3 class="font-semibold text-brand-900">Eco Friendly</h3>
-                            <p class="text-xs text-gray-500">Empaques reciclables</p>
+                            <p class="text-xs text-gray-500">Empaques sustentables</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 p-4 rounded-xl bg-brand-50/50">
@@ -148,8 +152,45 @@
             </div>
         </section>
 
+        <!-- SECCIÓN: NUESTRA HISTORIA / NOSOTROS -->
+        <section id="nosotros" class="py-20 bg-[#fcfaf7]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-6">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-800">Nuestra Historia</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-brand-900 leading-tight">
+                            Pasión por la alimentación consciente y natural
+                        </h2>
+                        <p class="text-gray-600 leading-relaxed">
+                            Nacimos en la IV Región con la misión de acercar a las familias de La Serena y Coquimbo alimentos nutritivos, puros y deliciosos[cite: 3]. Trabajamos codo a codo con productores seleccionados asegurando que cada fruto mantenga su sabor y nutrientes intactos.
+                        </p>
+                        <ul class="space-y-3 pt-2">
+                            <li class="flex items-center gap-3 text-gray-700 font-medium text-sm sm:text-base">
+                                <i data-lucide="check" class="w-5 h-5 text-brand-800 flex-shrink-0"></i>
+                                Control estricto de humedad y envasado
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-medium text-sm sm:text-base">
+                                <i data-lucide="check" class="w-5 h-5 text-brand-800 flex-shrink-0"></i>
+                                Sin conservantes ni añadidos artificiales
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 font-medium text-sm sm:text-base">
+                                <i data-lucide="check" class="w-5 h-5 text-brand-800 flex-shrink-0"></i>
+                                Descuentos especiales para compras al por mayor
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1509358271058-acd22cc93898?auto=format&fit=crop&w=800&q=80" 
+                             alt="NutraNuts - Selección Real de Frutos Secos" 
+                             class="rounded-3xl shadow-xl object-cover w-full h-[380px]">
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Catalog Section -->
-        <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-brand-100">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
                 <div>
                     <h2 class="text-3xl font-bold text-brand-900">Nuestros Productos</h2>
@@ -158,17 +199,63 @@
                 
                 <!-- Category Filters -->
                 <div id="category-filters" class="flex flex-wrap gap-2">
-                    <button data-category="all" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-brand-800 text-white">Todos</button>
-                    <button data-category="frutos-secos" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Frutos Secos</button>
-                    <button data-category="semillas" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Semillas</button>
-                    <button data-category="mixes" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Mixes</button>
-                    <button data-category="deshidratados" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Deshidratados</button>
+                    <button type="button" data-category="all" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-brand-800 text-white">Todos</button>
+                    <button type="button" data-category="frutos-secos" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Frutos Secos</button>
+                    <button type="button" data-category="semillas" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Semillas</button>
+                    <button type="button" data-category="mixes" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Mixes</button>
+                    <button type="button" data-category="deshidratados" class="filter-btn px-4 py-2 rounded-full text-sm font-medium border border-brand-200 transition-all bg-white text-gray-600 hover:bg-brand-100">Deshidratados</button>
                 </div>
             </div>
 
-            <!-- Products Grid -->
+            <!-- Products Grid con URLs e IDs estables de Unsplash -->
             <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Se renderizan dinámicamente con JavaScript -->
+                
+                <!-- Producto 1: Almendras -->
+                <div class="bg-white rounded-2xl border border-brand-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                    <div class="relative h-48 overflow-hidden bg-amber-50/50 flex items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80" 
+                             alt="Almendras Seleccionadas" 
+                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=600&q=80';">
+                        <span class="absolute top-3 right-3 bg-amber-100 text-amber-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                            Frutos Secos
+                        </span>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h3 class="font-bold text-brand-900 text-lg">Almendras Seleccionadas</h3>
+                        <p class="text-xs text-gray-500 mt-1 mb-4 flex-grow">Almendras nonpareil de primera selección, ideales para snacks diarios o repostería.</p>
+                        <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-50">
+                            <span class="text-xl font-extrabold text-brand-800">$3.500 <span class="text-xs font-normal text-gray-500">/ 250g</span></span>
+                            <button type="button" class="add-to-cart-btn p-2.5 rounded-xl bg-brand-100 text-brand-800 hover:bg-brand-800 hover:text-white transition-colors">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Producto 2: Nueces Mariposa -->
+                <div class="bg-white rounded-2xl border border-brand-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                    <div class="relative h-48 overflow-hidden bg-amber-50/50 flex items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=600&q=80" 
+                             alt="Nueces Mariposa Extra Light" 
+                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=600&q=80';">
+                        <span class="absolute top-3 right-3 bg-amber-100 text-amber-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
+                            Frutos Secos
+                        </span>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h3 class="font-bold text-brand-900 text-lg">Nueces Mariposa Extra Light</h3>
+                        <p class="text-xs text-gray-500 mt-1 mb-4 flex-grow">Nueces mariposa de tonalidad clara, crocantes y ricas en Omega-3.</p>
+                        <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-50">
+                            <span class="text-xl font-extrabold text-brand-800">$4.200 <span class="text-xs font-normal text-gray-500">/ 250g</span></span>
+                            <button type="button" class="add-to-cart-btn p-2.5 rounded-xl bg-brand-100 text-brand-800 hover:bg-brand-800 hover:text-white transition-colors">
+                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
     </main>
@@ -176,29 +263,26 @@
     <!-- Shopping Cart Overlay Drawer -->
     <div id="cart-drawer-overlay" class="fixed inset-0 bg-black/50 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
         <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 translate-x-full transition-transform duration-300 flex flex-col">
-            <!-- Cart Header -->
             <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-brand-50">
                 <div class="flex items-center gap-2">
                     <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-800"></i>
                     <h2 class="text-lg font-bold text-brand-900">Carrito de Compras</h2>
                 </div>
-                <button id="close-cart-btn" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                <button id="close-cart-btn" type="button" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
                     <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
                 </button>
             </div>
 
-            <!-- Cart Items List -->
             <div id="cart-items-container" class="flex-grow overflow-y-auto p-6 space-y-4">
-                <!-- Se poblará vía JS -->
+                <!-- Se puebla mediante script.js -->
             </div>
 
-            <!-- Cart Footer -->
             <div class="p-6 border-t border-gray-100 bg-gray-50 space-y-4">
                 <div class="flex justify-between items-center text-lg font-bold text-gray-900">
                     <span>Total:</span>
                     <span id="cart-total-price">$0</span>
                 </div>
-                <button id="checkout-btn" class="w-full py-3.5 bg-brand-800 text-white rounded-xl font-semibold shadow hover:bg-brand-900 transition-all flex items-center justify-center gap-2">
+                <button id="checkout-btn" type="button" class="w-full py-3.5 bg-brand-800 text-white rounded-xl font-semibold shadow hover:bg-brand-900 transition-all flex items-center justify-center gap-2">
                     Finalizar Compra <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -213,40 +297,58 @@
 
     <!-- Footer -->
     <footer id="contacto" class="bg-brand-900 text-white py-12 border-t border-brand-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-8 h-8 rounded-full bg-amber-500 text-brand-900 flex items-center justify-center font-bold">
-                        <i data-lucide="nut" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xl font-bold">Frutos del Sol</span>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-2xl font-black text-amber-400">Nutra</span>
+                    <span class="text-2xl font-black text-white">Nuts</span>
                 </div>
                 <p class="text-brand-200/70 text-sm leading-relaxed">
-                    Tu tienda de confianza para frutos secos, semillas y snacks 100% naturales. Comprometidos con tu salud y el medio ambiente.
+                    Frutos secos, semillas y frutos deshidratados seleccionados con la máxima frescura en La Serena y Coquimbo[cite: 3].
                 </p>
+            </div>
+            <div>
+                <h4 class="text-lg font-semibold mb-4 text-amber-400">Navegación</h4>
+                <ul class="space-y-2 text-sm text-brand-200/70">
+                    <li><a href="#inicio" class="hover:text-white transition-colors">Inicio</a></li>
+                    <li><a href="#catalogo" class="hover:text-white transition-colors">Productos</a></li>
+                    <li><a href="#nosotros" class="hover:text-white transition-colors">Nosotros</a></li>
+                </ul>
             </div>
             <div>
                 <h4 class="text-lg font-semibold mb-4 text-amber-400">Contacto</h4>
                 <ul class="space-y-2 text-sm text-brand-200/70">
-                    <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> contacto@frutosdelsol.cl</li>
+                    <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4"></i> contacto@nutranuts.cl</li>
                     <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4"></i> +56 9 1234 5678</li>
-                    <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> Envíos a todo el país</li>
+                    <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4"></i> La Serena ~ Coquimbo[cite: 3]</li>
                 </ul>
             </div>
             <div>
-                <h4 class="text-lg font-semibold mb-4 text-amber-400">Horario de Atención</h4>
-                <p class="text-sm text-brand-200/70 leading-relaxed">
-                    Lunes a Viernes: 09:00 - 18:00 hrs<br>
-                    Sábados: 10:00 - 14:00 hrs
-                </p>
+                <h4 class="text-lg font-semibold mb-4 text-amber-400">Síguenos</h4>
+                <div class="flex gap-3">
+                    <a href="#" class="w-9 h-9 rounded-full bg-brand-800 flex items-center justify-center hover:bg-amber-400 hover:text-brand-900 transition-colors">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="w-9 h-9 rounded-full bg-brand-800 flex items-center justify-center hover:bg-amber-400 hover:text-brand-900 transition-colors">
+                        <i data-lucide="facebook" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="w-9 h-9 rounded-full bg-brand-800 flex items-center justify-center hover:bg-amber-400 hover:text-brand-900 transition-colors">
+                        <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    </a>
+                </div>
             </div>
         </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-brand-800/60 text-center text-xs text-brand-200/50">
-            &copy; 2026 Frutos del Sol. Todos los derechos reservados.
+            &copy; 2026 NutraNuts. Todos los derechos reservados.
         </div>
     </footer>
 
-    <!-- Custom JS -->
+    <!-- JS Scripts -->
     <script src="script.js"></script>
+    <script>
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>

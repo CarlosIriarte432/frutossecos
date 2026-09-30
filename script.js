@@ -10,7 +10,7 @@ const PRODUCTS = [
         category: "frutos-secos",
         price: 4990,
         unit: "500g",
-        image: "https://images.unsplash.com/photo-1543208541-005dd2419920?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1543208541-005dd2419920?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 2,
@@ -18,7 +18,7 @@ const PRODUCTS = [
         category: "frutos-secos",
         price: 5490,
         unit: "500g",
-        image: "https://images.unsplash.com/photo-1508061252966-17325f462551?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1508061252966-17325f462551?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 3,
@@ -26,7 +26,7 @@ const PRODUCTS = [
         category: "mixes",
         price: 3990,
         unit: "400g",
-        image: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 4,
@@ -34,7 +34,7 @@ const PRODUCTS = [
         category: "semillas",
         price: 2490,
         unit: "250g",
-        image: "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 5,
@@ -42,7 +42,7 @@ const PRODUCTS = [
         category: "frutos-secos",
         price: 6990,
         unit: "500g",
-        image: "https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 6,
@@ -50,7 +50,7 @@ const PRODUCTS = [
         category: "deshidratados",
         price: 3290,
         unit: "200g",
-        image: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 7,
@@ -58,7 +58,7 @@ const PRODUCTS = [
         category: "semillas",
         price: 2990,
         unit: "300g",
-        image: "https://images.unsplash.com/photo-1508061252966-17325f462551?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1608797178974-15b35a64ede9?auto=format&fit=crop&w=600&q=80"
     },
     {
         id: 8,
@@ -66,7 +66,7 @@ const PRODUCTS = [
         category: "mixes",
         price: 4590,
         unit: "400g",
-        image: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&q=80&w=500"
+        image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&q=80"
     }
 ];
 
@@ -91,13 +91,15 @@ const toastMessage = document.getElementById('toast-message');
 
 // --- Functions ---
 
-// Currency Formatter
+// Currency Formatter (Pesos Chilenos / CLP)
 function formatPrice(amount) {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(amount);
 }
 
 // Render Products Catalog
 function renderProducts() {
+    if (!productsGrid) return;
+
     const filtered = PRODUCTS.filter(p => {
         const matchesCategory = currentCategory === 'all' || p.category === currentCategory;
         const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -112,7 +114,7 @@ function renderProducts() {
                 <p class="text-sm">Intenta cambiando el filtro o término de búsqueda.</p>
             </div>
         `;
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
         return;
     }
 
@@ -136,11 +138,13 @@ function renderProducts() {
         </div>
     `).join('');
 
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
 }
 
 // Render Cart Drawer
 function renderCart() {
+    if (!cartItemsContainer || !cartBadge || !cartTotalPrice) return;
+
     // Update Badge
     const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
     cartBadge.textContent = totalCount;
@@ -162,7 +166,7 @@ function renderCart() {
             </div>
         `;
         cartTotalPrice.textContent = formatPrice(0);
-        lucide.createIcons();
+        if (window.lucide) lucide.createIcons();
         return;
     }
 
@@ -192,7 +196,7 @@ function renderCart() {
     const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     cartTotalPrice.textContent = formatPrice(total);
 
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
 }
 
 // Cart Actions
@@ -236,6 +240,7 @@ function saveCart() {
 
 // UI Controls
 function toggleCart(open) {
+    if (!cartDrawerOverlay || !cartDrawer) return;
     if (open) {
         cartDrawerOverlay.classList.remove('opacity-0', 'pointer-events-none');
         cartDrawer.classList.remove('translate-x-full');
@@ -246,6 +251,7 @@ function toggleCart(open) {
 }
 
 function showToast(message) {
+    if (!toast || !toastMessage) return;
     toastMessage.textContent = message;
     toast.classList.remove('translate-y-20', 'opacity-0');
     toast.classList.add('translate-y-0', 'opacity-100');
@@ -256,45 +262,60 @@ function showToast(message) {
 }
 
 // --- Event Listeners ---
-cartToggleBtn.addEventListener('click', () => toggleCart(true));
-closeCartBtn.addEventListener('click', () => toggleCart(false));
-cartDrawerOverlay.addEventListener('click', (e) => {
-    if (e.target === cartDrawerOverlay) toggleCart(false);
-});
 
-// Category Filter Handling
-filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        filterBtns.forEach(b => {
-            b.classList.remove('bg-brand-800', 'text-white');
-            b.classList.add('bg-white', 'text-gray-600');
+if (filterBtns.length > 0) {
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => {
+                b.classList.remove('bg-brand-800', 'text-white');
+                b.classList.add('bg-white', 'text-gray-600');
+            });
+            btn.classList.remove('bg-white', 'text-gray-600');
+            btn.classList.add('bg-brand-800', 'text-white');
+
+            currentCategory = btn.dataset.category;
+            renderProducts();
         });
-        btn.classList.remove('bg-white', 'text-gray-600');
-        btn.classList.add('bg-brand-800', 'text-white');
+    });
+}
 
-        currentCategory = btn.dataset.category;
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
         renderProducts();
     });
-});
+}
 
-// Live Search Handling
-searchInput.addEventListener('input', (e) => {
-    searchQuery = e.target.value;
-    renderProducts();
-});
+if (cartToggleBtn) cartToggleBtn.addEventListener('click', () => toggleCart(true));
+if (closeCartBtn) closeCartBtn.addEventListener('click', () => toggleCart(false));
+if (cartDrawerOverlay) {
+    cartDrawerOverlay.addEventListener('click', (e) => {
+        if (e.target === cartDrawerOverlay) toggleCart(false);
+    });
+}
 
-// Checkout Action
-document.getElementById('checkout-btn').addEventListener('click', () => {
-    if (cart.length === 0) {
-        alert("Tu carrito está vacío.");
-        return;
-    }
-    alert("¡Gracias por tu interés! Aquí puedes integrar la pasarela de pago (MercadoPago, Webpay, etc.) o derivar la orden a WhatsApp.");
-});
+const checkoutBtn = document.getElementById('checkout-btn');
+if (checkoutBtn) {
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) {
+            alert("Tu carrito está vacío.");
+            return;
+        }
+        alert("¡Gracias por tu interés! Aquí puedes conectar tu pasarela de pago o derivar a WhatsApp.");
+    });
+}
 
 // --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
+function initApp() {
     renderProducts();
     renderCart();
-});
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
