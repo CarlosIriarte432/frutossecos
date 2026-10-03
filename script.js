@@ -301,7 +301,6 @@ if (checkoutBtn) {
             alert("Tu carrito está vacío.");
             return;
         }
-        alert("¡Gracias por tu interés! Aquí puedes conectar tu pasarela de pago o derivar a WhatsApp.");
     });
 }
 
