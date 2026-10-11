@@ -162,7 +162,7 @@
                             Pasión por la alimentación consciente y natural
                         </h2>
                         <p class="text-gray-600 leading-relaxed">
-                            Nacimos en la IV Región con la misión de acercar a las familias de La Serena y Coquimbo alimentos nutritivos, puros y deliciosos[cite: 3]. Trabajamos codo a codo con productores seleccionados asegurando que cada fruto mantenga su sabor y nutrientes intactos.
+                            Nacimos en la IV Región con la misión de acercar a las familias de La Serena y Coquimbo alimentos nutritivos, puros y deliciosos. Trabajamos codo a codo con productores seleccionados asegurando que cada fruto mantenga su sabor y nutrientes intactos.
                         </p>
                         <ul class="space-y-3 pt-2">
                             <li class="flex items-center gap-3 text-gray-700 font-medium text-sm sm:text-base">
@@ -189,7 +189,7 @@
             </div>
         </section>
 
-        <!-- Catalog Section -->
+        <!-- Catalog Section Dinámico (Conectado a SQLite via catalog.js) -->
         <section id="catalogo" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-brand-100">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
                 <div>
@@ -207,55 +207,9 @@
                 </div>
             </div>
 
-            <!-- Products Grid con URLs e IDs estables de Unsplash -->
+            <!-- Products Grid donde catalog.js inyectará los productos dinámicos de SQLite -->
             <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                
-                <!-- Producto 1: Almendras -->
-                <div class="bg-white rounded-2xl border border-brand-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                    <div class="relative h-48 overflow-hidden bg-amber-50/50 flex items-center justify-center">
-                        <img src="https://images.unsplash.com/photo-1508061253366-f7da158b6d46?auto=format&fit=crop&w=600&q=80" 
-                             alt="Almendras Seleccionadas" 
-                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=600&q=80';">
-                        <span class="absolute top-3 right-3 bg-amber-100 text-amber-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
-                            Frutos Secos
-                        </span>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <h3 class="font-bold text-brand-900 text-lg">Almendras Seleccionadas</h3>
-                        <p class="text-xs text-gray-500 mt-1 mb-4 flex-grow">Almendras nonpareil de primera selección, ideales para snacks diarios o repostería.</p>
-                        <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-50">
-                            <span class="text-xl font-extrabold text-brand-800">$3.500 <span class="text-xs font-normal text-gray-500">/ 250g</span></span>
-                            <button type="button" class="add-to-cart-btn p-2.5 rounded-xl bg-brand-100 text-brand-800 hover:bg-brand-800 hover:text-white transition-colors">
-                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Producto 2: Nueces Mariposa -->
-                <div class="bg-white rounded-2xl border border-brand-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                    <div class="relative h-48 overflow-hidden bg-amber-50/50 flex items-center justify-center">
-                        <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=600&q=80" 
-                             alt="Nueces Mariposa Extra Light" 
-                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=600&q=80';">
-                        <span class="absolute top-3 right-3 bg-amber-100 text-amber-900 text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm">
-                            Frutos Secos
-                        </span>
-                    </div>
-                    <div class="p-5 flex flex-col flex-grow">
-                        <h3 class="font-bold text-brand-900 text-lg">Nueces Mariposa Extra Light</h3>
-                        <p class="text-xs text-gray-500 mt-1 mb-4 flex-grow">Nueces mariposa de tonalidad clara, crocantes y ricas en Omega-3.</p>
-                        <div class="flex items-center justify-between mt-auto pt-3 border-t border-brand-50">
-                            <span class="text-xl font-extrabold text-brand-800">$4.200 <span class="text-xs font-normal text-gray-500">/ 250g</span></span>
-                            <button type="button" class="add-to-cart-btn p-2.5 rounded-xl bg-brand-100 text-brand-800 hover:bg-brand-800 hover:text-white transition-colors">
-                                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- Se cargan dinámicamente desde el backend -->
             </div>
         </section>
     </main>
@@ -304,7 +258,7 @@
                     <span class="text-2xl font-black text-white">Nuts</span>
                 </div>
                 <p class="text-brand-200/70 text-sm leading-relaxed">
-                    Frutos secos, semillas y frutos deshidratados seleccionados con la máxima frescura en La Serena y Coquimbo[cite: 3].
+                    Frutos secos, semillas y frutos deshidratados seleccionados con la máxima frescura en La Serena y Coquimbo.
                 </p>
             </div>
             <div>
@@ -344,13 +298,14 @@
     </footer>
 
     <!-- JS Scripts -->
-    <script src="script.js"></script>
+    <script src="scripts/script.js"></script>
+    <script src="scripts/catalog.js"></script>
     <script>
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
     </script>
-    <script src="checkout.js"></script>
+    <script src="scripts/checkout.js"></script>
 
 </body>
 </html>

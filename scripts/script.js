@@ -294,15 +294,7 @@ if (cartDrawerOverlay) {
     });
 }
 
-const checkoutBtn = document.getElementById('checkout-btn');
-if (checkoutBtn) {
-    checkoutBtn.addEventListener('click', () => {
-        if (cart.length === 0) {
-            alert("Tu carrito está vacío.");
-            return;
-        }
-    });
-}
+
 
 // --- Initialization ---
 function initApp() {
@@ -318,3 +310,9 @@ if (document.readyState === 'loading') {
 } else {
     initApp();
 }
+
+// Agrega esto al final de tu archivo scripts/script.js para que sea global
+window.actualizarCarritoGlobal = function() {
+    cart = JSON.parse(localStorage.getItem('cart_items')) || [];
+    renderCart();
+};

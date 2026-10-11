@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Compra Exitosas! - NutraNuts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50 min-h-screen flex items-center justify-center text-stone-800 px-4">
+
+    <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-amber-100">
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+            ✓
+        </div>
+        
+        <h1 class="text-2xl font-bold text-amber-900 mb-2">¡Pago Aprobado con Éxito!</h1>
+        <p class="text-sm text-stone-600 mb-6">Muchas gracias por tu compra en NutraNuts. Hemos registrado tu pedido y la tía ya fue notificada para coordinar tu despacho en La Serena / Coquimbo.</p>
+
+        <div id="status-orden" class="text-xs text-stone-500 mb-6 bg-stone-50 p-3 rounded-lg border border-stone-200">
+            Registrando orden en el sistema...
+        </div>
+
+        <a href="index.html" class="inline-block w-full py-3 bg-amber-800 hover:bg-amber-900 text-white font-semibold rounded-xl shadow transition">
+            Volver a la Tienda 🥜
+        </a>
+    </div>
+
+    <script>
+        // Al cargar la página de éxito, registramos la orden en la BD y descontamos stock
+        async function finalizarYRegistrarCompra() {
+            const clienteStr = sessionStorage.getItem('pending_order_cliente');
+            const itemsStr = sessionStorage.getItem('pending_order_items');
+            const statusDiv = document.getElementById('status-orden');
+
+            if (!clienteStr || !itemsStr) {
+                statusDiv.innerHTML = "Orden procesada correctamente.";
+                return;
+            }
+
+            const cliente = JSON.parse(clienteStr);
+            const items = JSON.parse(itemsStr);
+            const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            try {
+                const response = await fetch('http://localhost:3000/api/registrar-orden', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cliente, items, total })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    statusDiv.innerHTML = "✅ ¡Pedido registrado y stock descontado con éxito!";
+                    // Limpiamos el carrito local y la sesión pendiente
+                    localStorage.removeItem('cart_items');
+                    sessionStorage.removeItem('pending_order_cliente');
+                    sessionStorage.removeItem('pending_order_items');
+                } else {
+                    statusDiv.innerHTML = "⚠️ El pago fue exitoso, pero hubo un detalle al registrar el stock.";
+                }
+            } catch (error) {
+                console.error("Error al registrar orden post-pago:", error);
+                statusDiv.innerHTML = "⚠️ Error de comunicación al guardar la orden.";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', finalizarYRegistrarCompra);
+    </script>
+</body>
+</html>
