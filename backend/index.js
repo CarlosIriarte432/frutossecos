@@ -3,6 +3,16 @@ const cors = require('cors');
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const db = require('./database');
 
+// -------------------------------------------------------------
+// MIGRACIÓN DE BASE DE DATOS (Asegura columna 'despachado')
+// -------------------------------------------------------------
+try {
+    db.prepare("ALTER TABLE ordenes ADD COLUMN despachado INTEGER DEFAULT 0").run();
+    console.log("✅ Columna 'despachado' verificada/creada en la tabla ordenes.");
+} catch (e) {
+    // Si la columna ya existe, SQLite genera este error y lo ignoramos de forma segura
+}
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -62,7 +72,7 @@ app.patch('/api/admin/productos/:id', (req, res) => {
         const nuevoStock = stock_unidades !== undefined ? Number(stock_unidades) : prodActual.stock_unidades;
         const nuevoPrecio = precio !== undefined ? Number(precio) : prodActual.precio;
 
-       // Si el stock es mayor a 0, se habilita automáticamente (1). Si es 0 o menos, queda agotado (0).
+        // Si el stock es mayor a 0, se habilita automáticamente (1). Si es 0 o menos, queda agotado (0).
         const estadoFinal = nuevoStock > 0 ? 1 : 0;
 
         const stmt = db.prepare(`
@@ -177,18 +187,48 @@ app.post('/api/registrar-orden', (req, res) => {
     }
 });
 
-// Endpoint para que el Admin vea los pedidos registrados
+// -------------------------------------------------------------
+// ENDPOINTS DE ADMINISTRACIÓN - ÓRDENES
+// -------------------------------------------------------------
+
+// Endpoint para que el Admin vea los pedidos con todos los nuevos campos
 app.get('/api/admin/ordenes', (req, res) => {
     try {
         const ordenes = db.prepare('SELECT * FROM ordenes ORDER BY fecha DESC').all();
-        // Parseamos el JSON de los items para que sea fácil leerlos
-        const ordenesFormateadas = ordenes.map(o => ({
-            ...o,
-            items: JSON.parse(o.items_json)
-        }));
+        const ordenesFormateadas = ordenes.map(o => {
+            let itemsParsed = [];
+            try {
+                itemsParsed = JSON.parse(o.items_json || '[]');
+            } catch (e) {
+                itemsParsed = [];
+            }
+            return {
+                ...o,
+                items: itemsParsed,
+                estado_pago: o.estado_pago || 'Pagado',
+                despachado: o.despachado || 0
+            };
+        });
         res.json(ordenesFormateadas);
     } catch (error) {
+        console.error('Error al obtener las órdenes:', error);
         res.status(500).json({ error: 'Error al obtener las órdenes' });
+    }
+});
+
+// Endpoint para marcar un pedido como despachado/realizado
+app.patch('/api/admin/ordenes/:id/despacho', (req, res) => {
+    try {
+        const { id } = req.params;
+        const { despachado } = req.body; // 1 o 0
+
+        const stmt = db.prepare('UPDATE ordenes SET despachado = ? WHERE id = ?');
+        stmt.run(despachado, id);
+
+        res.json({ success: true, message: 'Estado de despacho actualizado' });
+    } catch (error) {
+        console.error('Error al actualizar despacho:', error);
+        res.status(500).json({ error: 'No se pudo actualizar el estado' });
     }
 });
 
