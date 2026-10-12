@@ -62,6 +62,11 @@
 
             <!-- Actions -->
             <div class="flex items-center gap-4">
+                <!-- Contenedor dinámico de Autenticación en el Header -->
+                <div id="auth-nav-container" class="flex items-center gap-2">
+                    <!-- Se actualiza por JavaScript dependiendo si hay sesión iniciada -->
+                </div>
+
                 <div class="relative hidden sm:block">
                     <input type="text" id="search-input" placeholder="Buscar almendras, nueces..." 
                         class="pl-9 pr-4 py-2 text-sm rounded-full bg-brand-50 border border-brand-200 focus:outline-none focus:ring-2 focus:ring-amber-500 w-48 lg:w-64 transition-all">
@@ -297,9 +302,24 @@
         </div>
     </footer>
 
+    <!-- MODAL DE DETALLE DE PRODUCTO -->
+    <div id="product-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl relative animate-in fade-in zoom-in duration-200">
+            <!-- Botón cerrar -->
+            <button onclick="cerrarModalProducto()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors z-10">
+                ✕
+            </button>
+
+            <div id="modal-content" class="p-6 space-y-6">
+                <!-- Se llena dinámicamente con JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <!-- JS Scripts -->
     <script src="scripts/script.js"></script>
     <script src="scripts/catalog.js"></script>
+    <script src="scripts/auth.js"></script>    
     <script>
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();

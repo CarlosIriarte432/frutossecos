@@ -4,6 +4,18 @@ const path = require('path');
 const db = new Database(path.join(__dirname, 'nutranuts.db'));
 db.pragma('foreign_keys = ON');
 
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        telefono TEXT,
+        direccion TEXT,
+        fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+`).run();
+
 // 1. Tabla de Productos con stock numérico real
 db.exec(`
     CREATE TABLE IF NOT EXISTS productos (

@@ -14,19 +14,26 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 2. Solicitar datos de envío del cliente invitado (Rápido y efectivo para La Serena / Coquimbo)
-        const nombre = prompt('Ingresa tu Nombre y Apellido para el despacho:');
-        if (!nombre) return; // Si cancela, se detiene
+        // 2. Verificar si hay usuario logueado o pedir datos mediante el modal bonito
+        const usuarioActivo = JSON.parse(localStorage.getItem('nutranuts_user'));
+        let clienteData;
 
-        const telefono = prompt('Ingresa tu Teléfono de contacto (Ej: +569...):');
-        if (!telefono) return;
-
-        const direccion = prompt('Ingresa tu Dirección de despacho (Calle, número, comuna):');
-        if (!direccion) return;
-
-        const email = prompt('Ingresa tu Correo electrónico (opcional):') || '';
-
-        const clienteData = { nombre, telefono, direccion, email };
+        if (usuarioActivo) {
+            // Si está logueado, usamos sus datos automáticamente
+            clienteData = {
+                nombre: usuarioActivo.nombre,
+                telefono: usuarioActivo.telefono || '',
+                direccion: usuarioActivo.direccion || '',
+                email: usuarioActivo.email
+            };
+        } else {
+            // Si es invitado, mostramos el modal bonito y esperamos a que lo envíe
+            try {
+                clienteData = await obtenerDatosInvitadoPorModal();
+            } catch (err) {
+                return; // Si cerró el modal, se cancela la compra
+            }
+        }
 
         // 3. Feedback visual en el botón
         const originalText = checkoutBtn.innerHTML;
@@ -53,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Guardamos temporalmente los datos del cliente en sessionStorage 
-            // para registrarlos en la BD cuando vuelva de la página de exito.html
             sessionStorage.setItem('pending_order_cliente', JSON.stringify(clienteData));
             sessionStorage.setItem('pending_order_items', JSON.stringify(cartData));
 
@@ -72,3 +78,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Función auxiliar para manejar el modal de invitado mediante una Promesa
+function obtenerDatosInvitadoPorModal() {
+    return new Promise((resolve, reject) => {
+        const modal = document.getElementById('modal-checkout-invitado');
+        if (!modal) {
+            reject('Modal no encontrado');
+            return;
+        }
+
+        modal.classList.remove('hidden');
+
+        // Referencia al formulario
+        const form = document.getElementById('form-checkout-invitado');
+        
+        // Limpiar eventos anteriores clonando el form o manejando un submit único
+        const nuevoForm = form.cloneNode(true);
+        form.parentNode.replaceChild(nuevoForm, form);
+
+        nuevoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const cliente = {
+                nombre: document.getElementById('chk-nombre').value,
+                telefono: document.getElementById('chk-telefono').value,
+                direccion: document.getElementById('chk-direccion').value,
+                email: document.getElementById('chk-email').value || ''
+            };
+
+            modal.classList.add('hidden');
+            resolve(cliente);
+        });
+
+        // Si hace clic en la X o cierra el modal de alguna forma
+        const cerrarBtn = modal.querySelector('button[onclick*="cerrarModalesAuth"]');
+        if (cerrarBtn) {
+            cerrarBtn.onclick = () => {
+                modal.classList.add('hidden');
+                reject('Cancelado por el usuario');
+            };
+        }
+    });
+}
