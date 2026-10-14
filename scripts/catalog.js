@@ -158,7 +158,7 @@ function agregarAlCarritoBD(productId) {
     if (!product) return;
 
     if (product.disponible === 0 || product.stock_unidades <= 0) {
-        alert('Lo sentimos, este producto se encuentra agotado.');
+        mostrarToast('Lo sentimos, este producto se encuentra agotado.', 'warning');
         return;
     }
 
@@ -169,7 +169,7 @@ function agregarAlCarritoBD(productId) {
 
     // Validar que no se supere el stock físico de la bodega
     if (currentQtyInCart + 1 > product.stock_unidades) {
-        alert(`No puedes agregar más unidades. Stock máximo disponible: ${product.stock_unidades}`);
+       mostrarToast('No puedes agregar más unidades. Stock máximo disponible: ' + product.stock_unidades, 'warning');
         return;
     }
 

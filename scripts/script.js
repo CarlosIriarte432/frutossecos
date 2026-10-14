@@ -261,3 +261,68 @@ window.actualizarCarritoGlobal = function() {
     cart = JSON.parse(localStorage.getItem('cart_items')) || [];
     renderCart();
 };
+
+/**
+ * Sistema de Toasts Personalizados - NutraNuts
+ * Tipos soportados: 'success', 'error', 'warning', 'info'
+ */
+function mostrarToast(mensaje, tipo = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    // Configuración de colores e iconos según el tipo de alerta
+    const estilos = {
+        success: {
+            bg: 'bg-emerald-50 text-emerald-900 border-emerald-200',
+            icon: 'check-circle',
+            iconColor: 'text-emerald-600'
+        },
+        error: {
+            bg: 'bg-rose-50 text-rose-900 border-rose-200',
+            icon: 'alert-circle',
+            iconColor: 'text-rose-600'
+        },
+        warning: {
+            bg: 'bg-amber-50 text-amber-900 border-amber-200',
+            icon: 'alert-triangle',
+            iconColor: 'text-amber-600'
+        },
+        info: {
+            bg: 'bg-blue-50 text-blue-900 border-blue-200',
+            icon: 'info',
+            iconColor: 'text-blue-600'
+        }
+    };
+
+    const config = estilos[tipo] || estilos.success;
+
+    // Crear elemento del toast
+    const toast = document.createElement('div');
+    toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl border shadow-lg transition-all duration-300 transform translate-y-5 opacity-0 max-w-sm ${config.bg}`;
+    
+    toast.innerHTML = `
+        <i data-lucide="${config.icon}" class="w-5 h-5 flex-shrink-0 ${config.iconColor}"></i>
+        <p class="text-xs font-bold leading-snug flex-grow">${mensaje}</p>
+        <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-700 font-bold text-sm ml-2">✕</button>
+    `;
+
+    container.appendChild(toast);
+
+    // Inicializar iconos de Lucide si está disponible en el proyecto
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    // Animación de entrada (hacer visible)
+    setTimeout(() => {
+        toast.classList.remove('translate-y-5', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+    }, 10);
+
+    // Auto-eliminación después de 4 segundos con animación de salida
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-5', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}

@@ -194,13 +194,13 @@ async function manejarLogin(e) {
             localStorage.setItem('nutranuts_user', JSON.stringify(data.usuario));
             cerrarModalesAuth();
             actualizarNavAuth();
-            alert('👋 ¡Bienvenido de nuevo, ' + data.usuario.nombre + '!');
+            mostrarToast('👋 ¡Bienvenido de nuevo, ' + data.usuario.nombre + '!', 'success');
         } else {
-            alert('❌ ' + (data.error || 'Credenciales incorrectas'));
+            mostrarToast(data.error || 'Credenciales incorrectas', 'error');
         }
     } catch (err) {
         console.error('Error de red:', err);
-        alert('Error de conexión con el servidor');
+        mostrarToast('Error de conexión con el servidor', 'error');
     }
 }
 
@@ -224,20 +224,20 @@ async function manejarRegistro(e) {
             localStorage.setItem('nutranuts_user', JSON.stringify(data.usuario));
             cerrarModalesAuth();
             actualizarNavAuth();
-            alert('🎉 ¡Cuenta creada con éxito! Ya estás conectado.');
+            mostrarToast('🎉 ¡Cuenta creada con éxito! Ya estás conectado.', 'success');
         } else {
-            alert('❌ ' + (data.error || 'No se pudo registrar'));
+            mostrarToast(data.error || 'No se pudo registrar', 'error');
         }
     } catch (err) {
         console.error('Error de red:', err);
-        alert('Error de conexión con el servidor');
+        mostrarToast('Error de conexión con el servidor', 'error');
     }
 }
 
 function cerrarSesion() {
     localStorage.removeItem('nutranuts_user');
     actualizarNavAuth();
-    alert('Has cerrado sesión correctamente.');
+    mostrarToast('Has cerrado sesión correctamente.', 'info');
 }
 
 async function abrirModalPerfil() {
@@ -352,15 +352,15 @@ async function actualizarPerfilUsuario(e, userId) {
 
         if (res.ok && data.success) {
             localStorage.setItem('nutranuts_user', JSON.stringify(data.usuario));
-            alert('✅ ¡Perfil actualizado correctamente!');
+            mostrarToast('¡Perfil actualizado correctamente!', 'success');
             actualizarNavAuth();
             cerrarModalesAuth();
         } else {
-            alert('❌ ' + (data.error || 'Error al actualizar'));
+            mostrarToast(data.error || 'Error al actualizar', 'error');
         }
     } catch (err) {
         console.error('Error de red:', err);
-        alert('Error de conexión');
+        mostrarToast('Error de conexión', 'error');
     }
 }
 

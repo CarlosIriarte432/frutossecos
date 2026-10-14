@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cartData = JSON.parse(localStorage.getItem('cart_items')) || [];
 
         if (cartData.length === 0) {
-            alert('🛒 Tu carrito está vacío. Agrega productos antes de finalizar la compra.');
+            mostrarToast('Tu carrito está vacío. Agrega productos antes de finalizar la compra.', 'warning');
             return;
         }
 
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error en checkout:', error);
-            alert(`⚠️ ${error.message}`);
+            mostrarToast(error.message, 'error');
             checkoutBtn.disabled = false;
             checkoutBtn.innerHTML = originalText;
         }
