@@ -12,62 +12,7 @@ const PRODUCTS = [
         unit: "500g",
         image: "https://images.unsplash.com/photo-1543208541-005dd2419920?auto=format&fit=crop&w=600&q=80"
     },
-    {
-        id: 2,
-        name: "Almendras Tostadas Sin Sal",
-        category: "frutos-secos",
-        price: 5490,
-        unit: "500g",
-        image: "https://images.unsplash.com/photo-1508061252966-17325f462551?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 3,
-        name: "Mix Energía Vital",
-        category: "mixes",
-        price: 3990,
-        unit: "400g",
-        image: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 4,
-        name: "Semillas de Chía Orgánica",
-        category: "semillas",
-        price: 2490,
-        unit: "250g",
-        image: "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 5,
-        name: "Castañas de Cajú Naturales",
-        category: "frutos-secos",
-        price: 6990,
-        unit: "500g",
-        image: "https://images.unsplash.com/photo-1541014741259-de529411b96a?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 6,
-        name: "Mango Deshidratado sin Azúcar",
-        category: "deshidratados",
-        price: 3290,
-        unit: "200g",
-        image: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 7,
-        name: "Semillas de Zapallo Peladas",
-        category: "semillas",
-        price: 2990,
-        unit: "300g",
-        image: "https://images.unsplash.com/photo-1608797178974-15b35a64ede9?auto=format&fit=crop&w=600&q=80"
-    },
-    {
-        id: 8,
-        name: "Mix Keto Proteico",
-        category: "mixes",
-        price: 4590,
-        unit: "400g",
-        image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&q=80"
-    }
+
 ];
 
 // --- Application State ---
