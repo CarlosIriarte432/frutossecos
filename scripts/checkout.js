@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // 4. Petición al backend pasando los ítems y los datos del cliente
-            const response = await fetch('http://localhost:3000/api/create-preference', {
+            const response = await fetch('https://frutossecos.onrender.com/api/create-preference', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

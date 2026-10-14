@@ -2,7 +2,7 @@
  * NutraNuts - Sistema de Autenticación y Perfil de Usuario
  */
 
-const API_AUTH_URL = 'http://localhost:3000/api';
+const API_AUTH_URL = 'https://frutossecos.onrender.com/api';
 
 // Comprobar estado de la sesión al cargar la página
 document.addEventListener('DOMContentLoaded', () => {

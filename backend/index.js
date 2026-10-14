@@ -112,9 +112,9 @@ app.post('/api/create-preference', async (req, res) => {
         const body = {
             items: mpItems,
             back_urls: {
-                success: 'http://127.0.0.1:5500/exito.html',
-                failure: 'http://127.0.0.1:5500/fallo.html',
-                pending: 'http://127.0.0.1:5500/pendiente.html'
+                success: 'https://carlosiriarte432.github.io/frutossecos/exito.html',
+                failure: 'https://carlosiriarte432.github.io/frutossecos/fallo.html',
+                pending: 'https://carlosiriarte432.github.io/frutossecos/pendiente.html'
             },
         };
 

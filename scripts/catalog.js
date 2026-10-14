@@ -2,7 +2,7 @@
  * NutraNuts - Catálogo Dinámico con SQLite, Modales y Alertas de Stock
  */
 
-const API_BACKEND_URL = 'http://localhost:3000/api';
+const API_BACKEND_URL = 'https://frutossecos.onrender.com/api';
 let allProductsFromDB = [];
 
 // Función para cargar los productos desde el servidor SQLite
