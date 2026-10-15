@@ -196,7 +196,7 @@ async function manejarLogin(e) {
             actualizarNavAuth();
             mostrarToast('👋 ¡Bienvenido de nuevo, ' + data.usuario.nombre + '!', 'success');
         } else {
-            mostrarToast(data.error || 'Credenciales incorrectas', 'error');
+            mostrarToast(data.error || 'Correo o Contrasñea incorrectos. Por favor, inténtelo de nuevo', 'error');
         }
     } catch (err) {
         console.error('Error de red:', err);

@@ -36,3 +36,13 @@ html {
 .product-card:hover .product-card-img {
   transform: scale(1.05);
 }
+
+#toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2147483647; /* El z-index máximo permitido en los navegadores */
+    pointer-events: none;
+    isolation: isolate; /* Aisla el contexto de apilamiento y filtros */
+}

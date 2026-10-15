@@ -264,6 +264,7 @@ window.actualizarCarritoGlobal = function() {
 
 /**
  * Sistema de Toasts Personalizados - NutraNuts
+ * Posición: Superior Centrado | Z-Index superior a Modales
  * Tipos soportados: 'success', 'error', 'warning', 'info'
  */
 function mostrarToast(mensaje, tipo = 'success') {
@@ -273,22 +274,22 @@ function mostrarToast(mensaje, tipo = 'success') {
     // Configuración de colores e iconos según el tipo de alerta
     const estilos = {
         success: {
-            bg: 'bg-emerald-50 text-emerald-900 border-emerald-200',
-            icon: 'check-circle',
+            bg: 'bg-emerald-50 text-emerald-950 border-emerald-300 shadow-emerald-900/10',
+            icon: 'check-circle-2',
             iconColor: 'text-emerald-600'
         },
         error: {
-            bg: 'bg-rose-50 text-rose-900 border-rose-200',
+            bg: 'bg-rose-50 text-rose-950 border-rose-300 shadow-rose-900/10',
             icon: 'alert-circle',
             iconColor: 'text-rose-600'
         },
         warning: {
-            bg: 'bg-amber-50 text-amber-900 border-amber-200',
+            bg: 'bg-amber-50 text-amber-950 border-amber-300 shadow-amber-900/10',
             icon: 'alert-triangle',
             iconColor: 'text-amber-600'
         },
         info: {
-            bg: 'bg-blue-50 text-blue-900 border-blue-200',
+            bg: 'bg-blue-50 text-blue-950 border-blue-300 shadow-blue-900/10',
             icon: 'info',
             iconColor: 'text-blue-600'
         }
@@ -296,33 +297,32 @@ function mostrarToast(mensaje, tipo = 'success') {
 
     const config = estilos[tipo] || estilos.success;
 
-    // Crear elemento del toast
-    const toast = document.createElement('div');
-    toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3.5 rounded-2xl border shadow-lg transition-all duration-300 transform translate-y-5 opacity-0 max-w-sm ${config.bg}`;
-    
+    // Crear elemento del toast (más grande, padding amplio, texto en text-sm / font-bold)
+   const toast = document.createElement('div');
+toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border-2 shadow-xl transition-all duration-300 transform -translate-y-5 opacity-0 max-w-xs bg-white/95 backdrop-blur-md ${config.bg}`;
     toast.innerHTML = `
-        <i data-lucide="${config.icon}" class="w-5 h-5 flex-shrink-0 ${config.iconColor}"></i>
-        <p class="text-xs font-bold leading-snug flex-grow">${mensaje}</p>
-        <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-700 font-bold text-sm ml-2">✕</button>
+        <i data-lucide="${config.icon}" class="w-6 h-6 flex-shrink-0 ${config.iconColor}"></i>
+        <p class="text-sm font-bold leading-snug flex-grow">${mensaje}</p>
+        <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-700 font-extrabold text-base ml-2 transition-colors">✕</button>
     `;
 
     container.appendChild(toast);
 
-    // Inicializar iconos de Lucide si está disponible en el proyecto
+    // Inicializar iconos de Lucide
     if (window.lucide) {
         lucide.createIcons();
     }
 
-    // Animación de entrada (hacer visible)
+    // Animación de entrada hacia abajo
     setTimeout(() => {
-        toast.classList.remove('translate-y-5', 'opacity-0');
+        toast.classList.remove('-translate-y-5', 'opacity-0');
         toast.classList.add('translate-y-0', 'opacity-100');
     }, 10);
 
-    // Auto-eliminación después de 4 segundos con animación de salida
+    // Auto-eliminación después de 4 segundos
     setTimeout(() => {
         toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-5', 'opacity-0');
+        toast.classList.add('-translate-y-5', 'opacity-0');
         setTimeout(() => toast.remove(), 300);
     }, 4000);
 }

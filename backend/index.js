@@ -270,7 +270,7 @@ app.post('/api/auth/login', async (req, res) => {
         const usuario = result.rows[0];
 
         if (!usuario || usuario.password !== password) {
-            return res.status(401).json({ error: 'Credenciales inválidas' });
+            return res.status(401).json({ error: 'Correo o Contraseña incorrectos. Por favor, inténtelo de nuevo.' });
         }
 
         const esAdmin = email === 'admin@nutranuts.cl' || email === 'contacto@nutranuts.cl';
