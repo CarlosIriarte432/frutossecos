@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const { MercadoPagoConfig, Preference } = require('mercadopago');
@@ -7,8 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-const ACCESS_TOKEN_PRUEBA = 'APP_USR-3731722863549196-100210-c16d54920f70904960b97efd407d631b-3730766923';
-const client = new MercadoPagoConfig({ accessToken: ACCESS_TOKEN_PRUEBA });
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 // -------------------------------------------------------------
 // ENDPOINTS DE PRODUCTOS
@@ -112,11 +113,11 @@ app.post('/api/create-preference', async (req, res) => {
         const body = {
             items: mpItems,
             back_urls: {
-                success: 'https://carlosiriarte432.github.io/frutossecos/exito.html',
-                failure: 'https://carlosiriarte432.github.io/frutossecos/fallo.html',
-                pending: 'https://carlosiriarte432.github.io/frutossecos/pendiente.html'
+                success: `${process.env.FRONTEND_URL}/exito.html`,
+                failure: `${process.env.FRONTEND_URL}/fallo.html`,
+                pending: `${process.env.FRONTEND_URL}/pendiente.html`
             },
-        };
+        };  
 
         const preference = new Preference(client);
         const result = await preference.create({ body });
@@ -358,7 +359,7 @@ app.get('/api/admin/usuarios', async (req, res) => {
     }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor backend con PostgreSQL corriendo en http://localhost:${PORT}`);
+    console.log(`🚀 Servidor backend corriendo en el puerto ${PORT}`);
 });

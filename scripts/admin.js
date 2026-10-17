@@ -1,4 +1,4 @@
-       const API_URL = 'https://frutossecos.onrender.com/api';
+       const API_URL = CONFIG.API_URL;
 
         function cambiarTab(tab) {
             const secPedidos = document.getElementById('seccion-pedidos');

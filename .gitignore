@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno y credenciales ocultas
+.env
+.env.*
+
+# Bases de datos locales (si vuelves a usar SQLite para pruebas)
+*.db
+*.sqlite
+
+# Archivos del sistema operativo (evita subir basura generada por Windows/Mac)
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+npm-debug.log*

@@ -1,17 +1,16 @@
 /**
- * NutraNuts - Catálogo Dinámico con SQLite, Modales y Alertas de Stock
+ * Catálogo Dinámico con SQLite, Modales y Alertas de Stock
  */
 
-const API_BACKEND_URL = 'https://frutossecos.onrender.com/api';
 let allProductsFromDB = [];
 
-// Función para cargar los productos desde el servidor SQLite
 async function cargarCatalogoDesdeBD() {
     const productsGrid = document.getElementById('products-grid');
     if (!productsGrid) return;
 
     try {
-        const response = await fetch(`${API_BACKEND_URL}/productos`);
+        // CORRECCIÓN: Comillas inclinadas (backticks)
+        const response = await fetch(`${CONFIG.API_URL}/productos`);
         if (!response.ok) throw new Error('Error al conectar con el backend');
         
         allProductsFromDB = await response.json();
@@ -28,13 +27,11 @@ async function cargarCatalogoDesdeBD() {
     }
 }
 
-// Función auxiliar para formatear texto (ej: "frutos-secos" -> "Frutos Secos")
 function formatearCategoria(cat) {
     if (!cat) return '';
     return cat.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-// Función para pintar las tarjetas en el grid respetando stock, alertas y estado
 function renderizarProductosDinamicos(productosA_Mostrar) {
     const productsGrid = document.getElementById('products-grid');
     if (!productsGrid) return;
@@ -51,7 +48,6 @@ function renderizarProductosDinamicos(productosA_Mostrar) {
     productsGrid.innerHTML = productosA_Mostrar.map(p => {
         const isAvailable = p.disponible === 1 && p.stock_unidades > 0;
 
-        // Insignia de stock dinámica
         let badgeStock = '';
         if (!isAvailable) {
             badgeStock = `<span class="absolute top-3 right-3 bg-rose-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow">AGOTADO</span>`;
@@ -94,12 +90,10 @@ function renderizarProductosDinamicos(productosA_Mostrar) {
     if (window.lucide) lucide.createIcons();
 }
 
-// Función para abrir la ventana emergente (Modal) con los detalles del producto
 function abrirModalProducto(productId) {
     const product = allProductsFromDB.find(p => p.id === productId);
     if (!product) return;
 
-    // Verificar si el modal existe en el HTML, si no, lo creamos dinámicamente al vuelo
     let modalContainer = document.getElementById('product-modal');
     if (!modalContainer) {
         modalContainer = document.createElement('div');
@@ -152,7 +146,6 @@ function cerrarModalProducto() {
     }
 }
 
-// Función para agregar al carrito con validación estricta de stock
 function agregarAlCarritoBD(productId) {
     const product = allProductsFromDB.find(p => p.id === productId);
     if (!product) return;
@@ -167,7 +160,6 @@ function agregarAlCarritoBD(productId) {
 
     let currentQtyInCart = existingIndex > -1 ? cart[existingIndex].quantity : 0;
 
-    // Validar que no se supere el stock físico de la bodega
     if (currentQtyInCart + 1 > product.stock_unidades) {
        mostrarToast('No puedes agregar más unidades. Stock máximo disponible: ' + product.stock_unidades, 'warning');
         return;
@@ -186,25 +178,20 @@ function agregarAlCarritoBD(productId) {
         });
     }
 
-    // 1. Guardar en localStorage
     localStorage.setItem('cart_items', JSON.stringify(cart));
     
-    // 2. Actualizar el carrito visualmente
     if (typeof window.actualizarCarritoGlobal === 'function') {
         window.actualizarCarritoGlobal();
     }
     
-    // 3. Abrir el cajón del carrito
     if (typeof toggleCart === 'function') {
         toggleCart(true);
     }
 }
 
-// Filtros y Buscador conectados a la Base de Datos
 document.addEventListener('DOMContentLoaded', () => {
     cargarCatalogoDesdeBD();
 
-    // Filtros por categoría
     const filterBtns = document.querySelectorAll('.filter-btn');
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -225,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Buscador en tiempo real
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {

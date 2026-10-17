@@ -1,7 +1,8 @@
+require('dotenv').config(); // <-- 1. Agregamos esto para que lea el archivo .env
 const { Pool } = require('pg');
 
-// Tu cadena de conexión directa de Neon
-const connectionString = 'postgresql://neondb_owner:npg_80ZzScgRiEBe@ep-wild-base-b4qvvbuf-pooler.c-6.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+// 2. Borramos la cadena fija y llamamos a la variable de entorno
+const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({
     connectionString,

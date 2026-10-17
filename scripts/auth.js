@@ -1,10 +1,7 @@
 /**
- * NutraNuts - Sistema de Autenticación y Perfil de Usuario
+ * Sistema de Autenticación y Perfil de Usuario
  */
 
-const API_AUTH_URL = 'https://frutossecos.onrender.com/api';
-
-// Comprobar estado de la sesión al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     actualizarNavAuth();
     inyectarModalesAuth();
@@ -22,7 +19,6 @@ function actualizarNavAuth() {
     const usuario = obtenerUsuarioActual();
 
     if (usuario) {
-        // Verificamos si es admin (por correo o por la propiedad es_admin)
         const esAdmin = usuario.es_admin || usuario.email === 'admin@nutranuts.cl';
 
         container.innerHTML = `
@@ -54,7 +50,6 @@ function actualizarNavAuth() {
     }
 }
 
-// Inyectar estructuras HTML de los Modales de Login, Registro, Perfil y Checkout Invitado
 function inyectarModalesAuth() {
     if (document.getElementById('auth-modals-root')) return;
 
@@ -108,7 +103,7 @@ function inyectarModalesAuth() {
                             <input type="text" id="reg-telefono" placeholder="+569..." class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-brand-800">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1">Dirección (La Serena/Coquimbo)</label>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Dirección</label>
                             <input type="text" id="reg-direccion" placeholder="Calle y número" class="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-brand-800">
                         </div>
                     </div>
@@ -176,14 +171,14 @@ function cerrarModalesAuth() {
     document.getElementById('modal-checkout-invitado')?.classList.add('hidden');
 }
 
-// Lógica de Peticiones Backend
 async function manejarLogin(e) {
     e.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
     try {
-        const res = await fetch(`${API_AUTH_URL}/auth/login`, {
+        // CORRECCIÓN: Comillas inclinadas (backticks)
+        const res = await fetch(`${CONFIG.API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -196,7 +191,7 @@ async function manejarLogin(e) {
             actualizarNavAuth();
             mostrarToast('👋 ¡Bienvenido de nuevo, ' + data.usuario.nombre + '!', 'success');
         } else {
-            mostrarToast(data.error || 'Correo o Contrasñea incorrectos. Por favor, inténtelo de nuevo', 'error');
+            mostrarToast(data.error || 'Correo o Contraseña incorrectos.', 'error');
         }
     } catch (err) {
         console.error('Error de red:', err);
@@ -213,7 +208,8 @@ async function manejarRegistro(e) {
     const direccion = document.getElementById('reg-direccion').value;
 
     try {
-        const res = await fetch(`${API_AUTH_URL}/auth/register`, {
+        // CORRECCIÓN: Comillas inclinadas (backticks)
+        const res = await fetch(`${CONFIG.API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, email, password, telefono, direccion })
@@ -252,7 +248,8 @@ async function abrirModalPerfil() {
     modalPerfil.classList.remove('hidden');
 
     try {
-        const res = await fetch(`${API_AUTH_URL}/usuarios/${usuario.email}/ordenes`);
+        // CORRECCIÓN: Comillas inclinadas (backticks)
+        const res = await fetch(`${CONFIG.API_URL}/usuarios/${usuario.email}/ordenes`);
         const ordenes = await res.json();
 
         let htmlOrdenes = '<p class="text-xs text-gray-400 py-4 text-center bg-gray-50 rounded-xl">Aún no has registrado compras con este correo.</p>';
@@ -343,7 +340,8 @@ async function actualizarPerfilUsuario(e, userId) {
     const direccion = document.getElementById('perfil-direccion').value;
 
     try {
-        const res = await fetch(`${API_AUTH_URL}/auth/profile/${userId}`, {
+        // CORRECCIÓN: Comillas inclinadas (backticks)
+        const res = await fetch(`${CONFIG.API_URL}/auth/profile/${userId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nombre, telefono, direccion })
@@ -364,7 +362,6 @@ async function actualizarPerfilUsuario(e, userId) {
     }
 }
 
-// Función auxiliar para obtener datos de invitado mediante el modal bonito
 function obtenerDatosInvitadoPorModal() {
     return new Promise((resolve, reject) => {
         const modal = document.getElementById('modal-checkout-invitado');
