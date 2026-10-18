@@ -184,7 +184,7 @@ const reintentarPago = async (req, res) => {
     }
 };
 
-// --- WEBHOOK: ESCUCHADOR DE PAGOS DE MERCADO PAGO ---
+// // --- WEBHOOK: ESCUCHADOR DE PAGOS DE MERCADO PAGO ---
 const webhook = async (req, res) => {
     const paymentId = req.query['data.id'] || req.query.id || (req.body && req.body.data && req.body.data.id);
     if (!paymentId) return res.status(400).send('No ID');
@@ -195,18 +195,27 @@ const webhook = async (req, res) => {
 
         if (paymentInfo.status === 'approved') {
             const ordenId = paymentInfo.external_reference;
+            
             if (ordenId) {
                 const dbClient = await pool.connect();
                 try {
                     await dbClient.query('BEGIN');
-                    const orden = (await dbClient.query('SELECT * FROM ordenes WHERE id = $1', [ordenId])).rows[0];
 
-                    if (orden && orden.estado === 'PENDIENTE') {
-                        // 1. Cambiamos a PAGADO
-                        await dbClient.query('UPDATE ordenes SET estado = $1 WHERE id = $2', ['PAGADO', ordenId]);
-                        
-                        // 2. Descontamos Stock
+                    // OPERACIÓN ATÓMICA: Intenta actualizar solo si está PENDIENTE. 
+                    // Si otro webhook paralelo ya lo hizo, rowCount será 0 y no hará nada duplicado.
+                    const updateRes = await dbClient.query(`
+                        UPDATE ordenes 
+                        SET estado = 'PAGADO' 
+                        WHERE id = $1 AND estado = 'PENDIENTE' 
+                        RETURNING items_json, cliente_email, cliente_nombre, total
+                    `, [ordenId]);
+
+                    // Si rowCount > 0, este fue el proceso ganador que logró cambiar el estado
+                    if (updateRes.rowCount > 0) {
+                        const orden = updateRes.rows[0];
                         const items = JSON.parse(orden.items_json);
+
+                        // 1. Descontamos Stock
                         for (const item of items) {
                             const p = (await dbClient.query('SELECT stock_unidades FROM productos WHERE id = $1', [item.id])).rows[0];
                             if (p) {
@@ -215,7 +224,7 @@ const webhook = async (req, res) => {
                             }
                         }
 
-                        // 3. ENVIAR CORREO AL CLIENTE CON EL COMPROBANTE
+                        // 2. ENVIAR CORREO AL CLIENTE (Solo se enviará 1 vez)
                         await enviarReciboCompra(
                             orden.cliente_email, 
                             orden.cliente_nombre, 
@@ -224,6 +233,7 @@ const webhook = async (req, res) => {
                             orden.total
                         );
                     }
+                    
                     await dbClient.query('COMMIT');
                 } catch (e) {
                     await dbClient.query('ROLLBACK');
