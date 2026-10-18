@@ -2,12 +2,13 @@
  * ============================================================================
  * CONTROLADOR DE ÓRDENES Y PASARELA DE PAGOS
  * ============================================================================
- * Maneja el checkout, la creación de la preferencia con Ticket Detallado,
- * el Webhook de confirmación y el historial de compras.
+ * Maneja el checkout, la creación de la preferencia, el Webhook de confirmación,
+ * el envío de correos con el recibo y la recuperación de pagos fallidos.
  */
 
 const pool = require('../config/database');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
+const { enviarReciboCompra } = require('../services/emailService'); // <-- Importamos el servicio de correo
 
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
@@ -20,7 +21,7 @@ const createPreference = async (req, res) => {
 
         await dbClient.query('BEGIN'); // Transacción segura
         let totalReal = 0;
-        let descripcionPedido = ""; // Aquí guardaremos el texto: "2x Nueces, 1x Mix..."
+        let descripcionPedido = "";
         const itemsParaGuardar = [];
 
         // 1. Validar stock, calcular total y armar el texto del resumen
@@ -34,11 +35,8 @@ const createPreference = async (req, res) => {
             }
 
             totalReal += prodDB.precio * item.quantity;
-            
-            // Vamos sumando el texto para la descripción de Mercado Pago
             descripcionPedido += `${item.quantity}x ${prodDB.nombre}, `;
 
-            // Guardamos el detalle real para nuestra propia Base de Datos
             itemsParaGuardar.push({ 
                 id: prodDB.id, 
                 name: prodDB.nombre, 
@@ -47,14 +45,10 @@ const createPreference = async (req, res) => {
             });
         }
 
-// Limpiamos la última coma y espacio del texto
+        // Limpiamos la última coma y espacio del texto
         descripcionPedido = descripcionPedido.slice(0, -2);
-
-        // Mercado Pago tiene un límite de caracteres para el título, lo cortamos si es muy largo
         let tituloFinal = `Pedido: ${descripcionPedido}`;
-        if (tituloFinal.length > 250) {
-            tituloFinal = tituloFinal.substring(0, 247) + "...";
-        }
+        if (tituloFinal.length > 250) tituloFinal = tituloFinal.substring(0, 247) + "...";
 
         // 2. Crear la orden PENDIENTE en nuestra BD
         const insertRes = await dbClient.query(`
@@ -72,10 +66,10 @@ const createPreference = async (req, res) => {
             urlBase = urlBase.trim();
         }
 
-        // --- TRUCO DEL ITEM ÚNICO PARA MERCADO PAGO ---
+        // 3. Truco del Item Único para Mercado Pago
         const mpItems = [{
             id: ordenId.toString(),
-            title: tituloFinal, // <-- AHORA LA LISTA APARECERÁ COMO EL TÍTULO DE LA COMPRA
+            title: tituloFinal,
             picture_url: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=600&q=80",
             category_id: "others",
             unit_price: Number(totalReal), 
@@ -83,7 +77,7 @@ const createPreference = async (req, res) => {
             currency_id: 'CLP'
         }];
 
-        // 3. Crear Preferencia en Mercado Pago
+        // 4. Crear Preferencia en Mercado Pago
         const preference = new Preference(client);
         const result = await preference.create({
             body: {
@@ -94,7 +88,7 @@ const createPreference = async (req, res) => {
                     failure: `${urlBase}/fallo.html`,
                     pending: `${urlBase}/pendiente.html`
                 },
-               // auto_return: "approved", 
+                auto_return: "approved", 
                 notification_url: "https://frutossecos.onrender.com/api/webhook"
             }
         });
@@ -104,6 +98,87 @@ const createPreference = async (req, res) => {
         await dbClient.query('ROLLBACK');
         console.error('Error al generar preferencia:', error);
         res.status(500).json({ error: 'Error al procesar pago' });
+    } finally {
+        dbClient.release();
+    }
+};
+
+// --- REINTENTAR PAGO DE ORDEN PENDIENTE ---
+const reintentarPago = async (req, res) => {
+    const { id } = req.params;
+    const dbClient = await pool.connect();
+    
+    try {
+        await dbClient.query('BEGIN');
+        
+        const ordenRes = await dbClient.query('SELECT * FROM ordenes WHERE id = $1', [id]);
+        const orden = ordenRes.rows[0];
+
+        if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+        if (orden.estado === 'PAGADO') return res.status(400).json({ error: 'La orden ya está pagada' });
+
+        const items = JSON.parse(orden.items_json);
+        let totalReal = 0;
+        let descripcionPedido = "";
+
+        // Re-validar stock y precios actualizados
+        for (const item of items) {
+            const prodRes = await dbClient.query('SELECT * FROM productos WHERE id = $1', [item.id]);
+            const prodDB = prodRes.rows[0];
+
+            if (!prodDB || prodDB.disponible === 0 || prodDB.stock_unidades < item.quantity) {
+                await dbClient.query('ROLLBACK');
+                return res.status(400).json({ error: `El producto "${item.name}" ya no tiene stock suficiente.` });
+            }
+
+            totalReal += prodDB.precio * item.quantity;
+            descripcionPedido += `${item.quantity}x ${prodDB.nombre}, `;
+        }
+
+        descripcionPedido = descripcionPedido.slice(0, -2);
+        let tituloFinal = `Pedido (Reintento): ${descripcionPedido}`;
+        if (tituloFinal.length > 250) tituloFinal = tituloFinal.substring(0, 247) + "...";
+
+        await dbClient.query('UPDATE ordenes SET total = $1 WHERE id = $2', [totalReal, id]);
+        await dbClient.query('COMMIT');
+
+        const mpItems = [{
+            id: orden.id.toString(),
+            title: tituloFinal,
+            picture_url: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=600&q=80",
+            category_id: "others",
+            unit_price: Number(totalReal),
+            quantity: 1,
+            currency_id: 'CLP'
+        }];
+
+        let urlBase = process.env.FRONTEND_URL;
+        if (!urlBase || !urlBase.trim().startsWith('http')) {
+            urlBase = "http://localhost:5500";
+        } else {
+            urlBase = urlBase.trim();
+        }
+
+        const preference = new Preference(client);
+        const result = await preference.create({
+            body: {
+                items: mpItems,
+                external_reference: orden.id.toString(),
+                back_urls: {
+                    success: `${urlBase}/exito.html`,
+                    failure: `${urlBase}/fallo.html`,
+                    pending: `${urlBase}/pendiente.html`
+                },
+                auto_return: "approved",
+                notification_url: "https://frutossecos.onrender.com/api/webhook"
+            }
+        });
+
+        res.json({ init_point: result.init_point, sandbox_init_point: result.sandbox_init_point });
+    } catch (error) {
+        await dbClient.query('ROLLBACK');
+        console.error('Error al reintentar pago:', error);
+        res.status(500).json({ error: 'Error al procesar la pasarela de pagos' });
     } finally {
         dbClient.release();
     }
@@ -124,13 +199,13 @@ const webhook = async (req, res) => {
                 const dbClient = await pool.connect();
                 try {
                     await dbClient.query('BEGIN');
-                    const orden = (await dbClient.query('SELECT estado, items_json FROM ordenes WHERE id = $1', [ordenId])).rows[0];
+                    const orden = (await dbClient.query('SELECT * FROM ordenes WHERE id = $1', [ordenId])).rows[0];
 
                     if (orden && orden.estado === 'PENDIENTE') {
-                        // Cambiamos a PAGADO
+                        // 1. Cambiamos a PAGADO
                         await dbClient.query('UPDATE ordenes SET estado = $1 WHERE id = $2', ['PAGADO', ordenId]);
                         
-                        // Descontamos Stock
+                        // 2. Descontamos Stock
                         const items = JSON.parse(orden.items_json);
                         for (const item of items) {
                             const p = (await dbClient.query('SELECT stock_unidades FROM productos WHERE id = $1', [item.id])).rows[0];
@@ -139,6 +214,15 @@ const webhook = async (req, res) => {
                                 await dbClient.query('UPDATE productos SET stock_unidades = $1, disponible = $2 WHERE id = $3', [nStock, nStock === 0 ? 0 : 1, item.id]);
                             }
                         }
+
+                        // 3. ENVIAR CORREO AL CLIENTE CON EL COMPROBANTE
+                        await enviarReciboCompra(
+                            orden.cliente_email, 
+                            orden.cliente_nombre, 
+                            ordenId, 
+                            items, 
+                            orden.total
+                        );
                     }
                     await dbClient.query('COMMIT');
                 } catch (e) {
@@ -183,91 +267,6 @@ const getOrdenesUsuario = async (req, res) => {
         res.json(result.rows.map(o => ({ ...o, items: JSON.parse(o.items_json || '[]') })));
     } catch (error) {
         res.status(500).json({ error: 'Error' });
-    }
-};
-
-// --- REINTENTAR PAGO DE ORDEN PENDIENTE ---
-const reintentarPago = async (req, res) => {
-    const { id } = req.params;
-    const dbClient = await pool.connect();
-    
-    try {
-        await dbClient.query('BEGIN');
-        
-        // 1. Buscamos la orden
-        const ordenRes = await dbClient.query('SELECT * FROM ordenes WHERE id = $1', [id]);
-        const orden = ordenRes.rows[0];
-
-        if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
-        if (orden.estado === 'PAGADO') return res.status(400).json({ error: 'La orden ya está pagada' });
-
-        const items = JSON.parse(orden.items_json);
-        let totalReal = 0;
-        let descripcionPedido = "";
-
-        // 2. Re-validamos el stock y recalculamos precios actualizados de la BD
-        for (const item of items) {
-            const prodRes = await dbClient.query('SELECT * FROM productos WHERE id = $1', [item.id]);
-            const prodDB = prodRes.rows[0];
-
-            if (!prodDB || prodDB.disponible === 0 || prodDB.stock_unidades < item.quantity) {
-                await dbClient.query('ROLLBACK');
-                return res.status(400).json({ error: `El producto "${item.name}" ya no tiene stock suficiente.` });
-            }
-
-            totalReal += prodDB.precio * item.quantity;
-            descripcionPedido += `${item.quantity}x ${prodDB.nombre}, `;
-        }
-
-        descripcionPedido = descripcionPedido.slice(0, -2);
-        let tituloFinal = `Pedido (Reintento): ${descripcionPedido}`;
-        if (tituloFinal.length > 250) tituloFinal = tituloFinal.substring(0, 247) + "...";
-
-        // 3. Actualizamos el total de la orden original por si los precios cambiaron en la BD
-        await dbClient.query('UPDATE ordenes SET total = $1 WHERE id = $2', [totalReal, id]);
-        await dbClient.query('COMMIT');
-
-        // 4. Generamos una nueva preferencia en Mercado Pago vinculada a la misma orden
-        const mpItems = [{
-            id: orden.id.toString(),
-            title: tituloFinal,
-            picture_url: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=600&q=80",
-            category_id: "others",
-            unit_price: Number(totalReal),
-            quantity: 1,
-            currency_id: 'CLP'
-        }];
-
-        let urlBase = process.env.FRONTEND_URL;
-        if (!urlBase || !urlBase.trim().startsWith('http')) {
-            urlBase = "http://localhost:5500";
-        } else {
-            urlBase = urlBase.trim();
-        }
-
-        const preference = new Preference(client);
-        const result = await preference.create({
-            body: {
-                items: mpItems,
-                external_reference: orden.id.toString(),
-                statement_descriptor: "NUTRANUTS",
-                back_urls: {
-                    success: `${urlBase}/exito.html`,
-                    failure: `${urlBase}/fallo.html`,
-                    pending: `${urlBase}/pendiente.html`
-                },
-                //auto_return: "approved",
-                notification_url: "https://frutossecos.onrender.com/api/webhook"
-            }
-        });
-
-        res.json({ init_point: result.init_point, sandbox_init_point: result.sandbox_init_point });
-    } catch (error) {
-        await dbClient.query('ROLLBACK');
-        console.error('Error al reintentar pago:', error);
-        res.status(500).json({ error: 'Error al procesar la pasarela de pagos' });
-    } finally {
-        dbClient.release();
     }
 };
 
