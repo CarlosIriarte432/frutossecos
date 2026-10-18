@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const pool = require('./database');
 
 const app = express();
@@ -80,10 +80,11 @@ app.patch('/api/admin/productos/:id', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// CHECKOUT Y REGISTRO DE ORDEN
+// CHECKOUT, CREACIÓN DE ORDEN PENDIENTE Y WEBHOOK
 // -------------------------------------------------------------
 
 app.post('/api/create-preference', async (req, res) => {
+    const dbClient = await pool.connect();
     try {
         const { items, cliente } = req.body;
 
@@ -91,33 +92,65 @@ app.post('/api/create-preference', async (req, res) => {
             return res.status(400).json({ error: 'El carrito está vacío' });
         }
 
-        // Validar stock en tiempo real
+        await dbClient.query('BEGIN');
+
+        let totalReal = 0;
+        const mpItems = [];
+        const itemsParaGuardar = [];
+
+        // 1. Validar stock y calcular el precio real desde la Base de Datos (Seguridad)
         for (const item of items) {
-            const prodRes = await pool.query('SELECT * FROM productos WHERE id = $1', [item.id]);
+            const prodRes = await dbClient.query('SELECT * FROM productos WHERE id = $1', [item.id]);
             const prodDB = prodRes.rows[0];
 
             if (!prodDB || prodDB.disponible === 0 || prodDB.stock_unidades < item.quantity) {
+                await dbClient.query('ROLLBACK');
                 return res.status(400).json({ 
-                    error: `Lo sentimos, el producto "${item.name}" no tiene stock suficiente (Disponibles: ${prodDB ? prodDB.stock_unidades : 0})` 
+                    error: `El producto "${item.name}" no tiene stock suficiente (Disponibles: ${prodDB ? prodDB.stock_unidades : 0})` 
                 });
             }
+
+            // Calculamos el total usando el precio de la BD, no el del frontend
+            totalReal += prodDB.precio * item.quantity;
+
+            mpItems.push({
+                title: prodDB.nombre,
+                unit_price: Number(prodDB.precio),
+                quantity: Number(item.quantity),
+                currency_id: 'CLP'
+            });
+
+            itemsParaGuardar.push({
+                id: prodDB.id,
+                name: prodDB.nombre,
+                price: prodDB.precio,
+                quantity: item.quantity
+            });
         }
 
-        const mpItems = items.map(item => ({
-            title: item.name || 'Producto NutraNuts',
-            unit_price: Number(item.price),
-            quantity: Number(item.quantity || 1),
-            currency_id: 'CLP'
-        }));
+        // 2. Crear la orden en estado PENDIENTE antes de ir a pagar
+        const insertRes = await dbClient.query(`
+            INSERT INTO ordenes (cliente_nombre, cliente_telefono, cliente_direccion, cliente_email, total, estado, items_json)
+            VALUES ($1, $2, $3, $4, $5, 'PENDIENTE', $6)
+            RETURNING id
+        `, [cliente.nombre, cliente.telefono, cliente.direccion, cliente.email || '', totalReal, JSON.stringify(itemsParaGuardar)]);
 
+        const ordenId = insertRes.rows[0].id;
+        await dbClient.query('COMMIT');
+
+        // 3. Generar la preferencia de Mercado Pago vinculada a nuestra Orden (external_reference)
         const body = {
             items: mpItems,
+            external_reference: ordenId.toString(), // <-- Vinculamos el pago a nuestra BD
             back_urls: {
                 success: `${process.env.FRONTEND_URL}/exito.html`,
                 failure: `${process.env.FRONTEND_URL}/fallo.html`,
                 pending: `${process.env.FRONTEND_URL}/pendiente.html`
             },
-        };  
+            auto_return: "approved",
+            // URL a la que MP enviará el aviso silencioso de pago (Debe ser HTTPS)
+            notification_url: "https://frutossecos.onrender.com/api/webhook" 
+        };
 
         const preference = new Preference(client);
         const result = await preference.create({ body });
@@ -128,58 +161,81 @@ app.post('/api/create-preference', async (req, res) => {
         });
 
     } catch (error) {
+        await dbClient.query('ROLLBACK');
         console.error('Error al generar preferencia:', error);
         res.status(500).json({ error: 'Error al procesar la pasarela de pagos' });
+    } finally {
+        dbClient.release();
     }
 });
 
-// Endpoint para registrar la orden y descontar stock con Transacción Segura
-app.post('/api/registrar-orden', async (req, res) => {
-    const dbClient = await pool.connect();
+// -------------------------------------------------------------
+// WEBHOOK: ESCUCHADOR DE PAGOS DE MERCADO PAGO
+// -------------------------------------------------------------
+app.post('/api/webhook', async (req, res) => {
+    // Mercado Pago envía el ID del pago en diferentes partes según el evento
+    const paymentId = req.query['data.id'] || req.query.id || (req.body && req.body.data && req.body.data.id);
+
+    if (!paymentId) {
+        return res.status(400).send('No payment ID found');
+    }
+
     try {
-        const { cliente, items, total } = req.body;
+        // Consultar a Mercado Pago el estado real de este pago
+        const payment = new Payment(client);
+        const paymentInfo = await payment.get({ id: paymentId });
 
-        await dbClient.query('BEGIN');
+        // Si el pago fue aprobado exitosamente
+        if (paymentInfo.status === 'approved') {
+            const ordenId = paymentInfo.external_reference; // El ID de nuestra base de datos
 
-        // 1. Guardar la orden
-        await dbClient.query(`
-            INSERT INTO ordenes (cliente_nombre, cliente_telefono, cliente_direccion, cliente_email, total, items_json)
-            VALUES ($1, $2, $3, $4, $5, $6)
-        `, [
-            cliente.nombre, 
-            cliente.telefono, 
-            cliente.direccion, 
-            cliente.email || '', 
-            total, 
-            JSON.stringify(items)
-        ]);
+            if (ordenId) {
+                const dbClient = await pool.connect();
+                try {
+                    await dbClient.query('BEGIN');
 
-        // 2. Descontar stock
-        for (const item of items) {
-            const prodRes = await dbClient.query('SELECT stock_unidades FROM productos WHERE id = $1', [item.id]);
-            const producto = prodRes.rows[0];
+                    // Verificar que la orden esté PENDIENTE (evita descontar stock 2 veces si MP envía el aviso repetido)
+                    const ordenRes = await dbClient.query('SELECT estado, items_json FROM ordenes WHERE id = $1', [ordenId]);
+                    const orden = ordenRes.rows[0];
 
-            if (producto) {
-                const nuevoStock = Math.max(0, producto.stock_unidades - item.quantity);
-                const nuevoEstado = nuevoStock === 0 ? 0 : 1;
+                    if (orden && orden.estado === 'PENDIENTE') {
+                        // 1. Marcar como PAGADO
+                        await dbClient.query('UPDATE ordenes SET estado = $1 WHERE id = $2', ['PAGADO', ordenId]);
 
-                await dbClient.query(`
-                    UPDATE productos 
-                    SET stock_unidades = $1, disponible = $2 
-                    WHERE id = $3
-                `, [nuevoStock, nuevoEstado, item.id]);
+                        // 2. Descontar el stock
+                        const itemsComprados = JSON.parse(orden.items_json);
+                        for (const item of itemsComprados) {
+                            const prodRes = await dbClient.query('SELECT stock_unidades FROM productos WHERE id = $1', [item.id]);
+                            const producto = prodRes.rows[0];
+
+                            if (producto) {
+                                const nuevoStock = Math.max(0, producto.stock_unidades - item.quantity);
+                                const nuevoEstado = nuevoStock === 0 ? 0 : 1;
+
+                                await dbClient.query(`
+                                    UPDATE productos 
+                                    SET stock_unidades = $1, disponible = $2 
+                                    WHERE id = $3
+                                `, [nuevoStock, nuevoEstado, item.id]);
+                            }
+                        }
+                    }
+                    await dbClient.query('COMMIT');
+                } catch (dbError) {
+                    await dbClient.query('ROLLBACK');
+                    console.error('Error en DB al procesar webhook:', dbError);
+                } finally {
+                    dbClient.release();
+                }
             }
         }
 
-        await dbClient.query('COMMIT');
-        res.json({ success: true, message: 'Orden registrada y stock descontado exitosamente' });
+        // Siempre debemos responder 200 OK rápido a Mercado Pago
+        res.sendStatus(200);
 
     } catch (error) {
-        await dbClient.query('ROLLBACK');
-        console.error('Error al registrar orden:', error);
-        res.status(500).json({ error: 'Error al registrar la orden en el sistema' });
-    } finally {
-        dbClient.release();
+        console.error('Error procesando el webhook:', error);
+        res.sendStatus(500);
     }
 });
 

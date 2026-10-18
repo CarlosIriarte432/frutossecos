@@ -26,45 +26,17 @@
     </div>
 
     <script>
-        async function finalizarYRegistrarCompra() {
-            const clienteStr = sessionStorage.getItem('pending_order_cliente');
-            const itemsStr = sessionStorage.getItem('pending_order_items');
+        document.addEventListener('DOMContentLoaded', () => {
             const statusDiv = document.getElementById('status-orden');
+            
+            // Limpiamos el carrito local porque la compra ya se hizo.
+            // La orden y el stock ya fueron procesados por nuestro servidor en el Webhook.
+            localStorage.removeItem('cart_items');
+            sessionStorage.removeItem('pending_order_cliente');
+            sessionStorage.removeItem('pending_order_items');
 
-            if (!clienteStr || !itemsStr) {
-                statusDiv.innerHTML = "Orden procesada correctamente.";
-                return;
-            }
-
-            const cliente = JSON.parse(clienteStr);
-            const items = JSON.parse(itemsStr);
-            const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-            try {
-                // CORRECCIÓN: Comillas inclinadas (backticks)
-                const response = await fetch(`${CONFIG.API_URL}/registrar-orden`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ cliente, items, total })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    statusDiv.innerHTML = "✅ ¡Pedido registrado y stock descontado con éxito!";
-                    localStorage.removeItem('cart_items');
-                    sessionStorage.removeItem('pending_order_cliente');
-                    sessionStorage.removeItem('pending_order_items');
-                } else {
-                    statusDiv.innerHTML = "⚠️ El pago fue exitoso, pero hubo un detalle al registrar el stock.";
-                }
-            } catch (error) {
-                console.error("Error al registrar orden post-pago:", error);
-                statusDiv.innerHTML = "⚠️ Error de comunicación al guardar la orden.";
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', finalizarYRegistrarCompra);
+            statusDiv.innerHTML = "✅ ¡Tu pedido ha sido confirmado en nuestro sistema!";
+        });
     </script>
 
     <script src="scripts/config.js"></script>
