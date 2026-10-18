@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 const { MercadoPagoConfig, Preference, Payment } = require('mercadopago');
 const pool = require('./database');
 
@@ -298,11 +299,15 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
         }
 
+        // 1. Encriptar la contraseña (10 es el "salt rounds", un estándar seguro y rápido)
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const result = await pool.query(`
             INSERT INTO usuarios (nombre, email, password, telefono, direccion) 
             VALUES ($1, $2, $3, $4, $5)
             RETURNING id
-        `, [nombre, email, password, telefono || '', direccion || '']);
+        `, [nombre, email, hashedPassword, telefono || '', direccion || '']);
 
         const nuevoUsuario = {
             id: result.rows[0].id,
@@ -326,7 +331,15 @@ app.post('/api/auth/login', async (req, res) => {
         const result = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
         const usuario = result.rows[0];
 
-        if (!usuario || usuario.password !== password) {
+        // Validar si el usuario no existe en la base de datos
+        if (!usuario) {
+            return res.status(401).json({ error: 'Correo o Contraseña incorrectos. Por favor, inténtelo de nuevo.' });
+        }
+
+        // 2. Comparar la contraseña ingresada con el hash de la base de datos
+        const passwordValida = await bcrypt.compare(password, usuario.password);
+
+        if (!passwordValida) {
             return res.status(401).json({ error: 'Correo o Contraseña incorrectos. Por favor, inténtelo de nuevo.' });
         }
 
@@ -364,10 +377,14 @@ app.put('/api/auth/profile/:id', async (req, res) => {
         let passwordFinal = usuario.password;
 
         if (nuevoPassword) {
-            if (passwordActual !== usuario.password) {
+            // Comparar la contraseña actual con el hash antes de permitir el cambio
+            const passwordActualValida = await bcrypt.compare(passwordActual, usuario.password);
+            if (!passwordActualValida) {
                 return res.status(400).json({ error: 'La contraseña actual es incorrecta' });
             }
-            passwordFinal = nuevoPassword;
+            // Encriptar la nueva contraseña
+            const salt = await bcrypt.genSalt(10);
+            passwordFinal = await bcrypt.hash(nuevoPassword, salt);
         }
 
         const nuevoNombre = nombre || usuario.nombre;
