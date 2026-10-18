@@ -94,7 +94,7 @@ const createPreference = async (req, res) => {
                     failure: `${urlBase}/fallo.html`,
                     pending: `${urlBase}/pendiente.html`
                 },
-                auto_return: "approved", 
+               // auto_return: "approved", 
                 notification_url: "https://frutossecos.onrender.com/api/webhook"
             }
         });
@@ -186,4 +186,89 @@ const getOrdenesUsuario = async (req, res) => {
     }
 };
 
-module.exports = { createPreference, webhook, getOrdenesAdmin, actualizarDespacho, getOrdenesUsuario };
+// --- REINTENTAR PAGO DE ORDEN PENDIENTE ---
+const reintentarPago = async (req, res) => {
+    const { id } = req.params;
+    const dbClient = await pool.connect();
+    
+    try {
+        await dbClient.query('BEGIN');
+        
+        // 1. Buscamos la orden
+        const ordenRes = await dbClient.query('SELECT * FROM ordenes WHERE id = $1', [id]);
+        const orden = ordenRes.rows[0];
+
+        if (!orden) return res.status(404).json({ error: 'Orden no encontrada' });
+        if (orden.estado === 'PAGADO') return res.status(400).json({ error: 'La orden ya está pagada' });
+
+        const items = JSON.parse(orden.items_json);
+        let totalReal = 0;
+        let descripcionPedido = "";
+
+        // 2. Re-validamos el stock y recalculamos precios actualizados de la BD
+        for (const item of items) {
+            const prodRes = await dbClient.query('SELECT * FROM productos WHERE id = $1', [item.id]);
+            const prodDB = prodRes.rows[0];
+
+            if (!prodDB || prodDB.disponible === 0 || prodDB.stock_unidades < item.quantity) {
+                await dbClient.query('ROLLBACK');
+                return res.status(400).json({ error: `El producto "${item.name}" ya no tiene stock suficiente.` });
+            }
+
+            totalReal += prodDB.precio * item.quantity;
+            descripcionPedido += `${item.quantity}x ${prodDB.nombre}, `;
+        }
+
+        descripcionPedido = descripcionPedido.slice(0, -2);
+        let tituloFinal = `Pedido (Reintento): ${descripcionPedido}`;
+        if (tituloFinal.length > 250) tituloFinal = tituloFinal.substring(0, 247) + "...";
+
+        // 3. Actualizamos el total de la orden original por si los precios cambiaron en la BD
+        await dbClient.query('UPDATE ordenes SET total = $1 WHERE id = $2', [totalReal, id]);
+        await dbClient.query('COMMIT');
+
+        // 4. Generamos una nueva preferencia en Mercado Pago vinculada a la misma orden
+        const mpItems = [{
+            id: orden.id.toString(),
+            title: tituloFinal,
+            picture_url: "https://images.unsplash.com/photo-1596560548464-f010549b84d7?auto=format&fit=crop&w=600&q=80",
+            category_id: "others",
+            unit_price: Number(totalReal),
+            quantity: 1,
+            currency_id: 'CLP'
+        }];
+
+        let urlBase = process.env.FRONTEND_URL;
+        if (!urlBase || !urlBase.trim().startsWith('http')) {
+            urlBase = "http://localhost:5500";
+        } else {
+            urlBase = urlBase.trim();
+        }
+
+        const preference = new Preference(client);
+        const result = await preference.create({
+            body: {
+                items: mpItems,
+                external_reference: orden.id.toString(),
+                statement_descriptor: "NUTRANUTS",
+                back_urls: {
+                    success: `${urlBase}/exito.html`,
+                    failure: `${urlBase}/fallo.html`,
+                    pending: `${urlBase}/pendiente.html`
+                },
+                //auto_return: "approved",
+                notification_url: "https://frutossecos.onrender.com/api/webhook"
+            }
+        });
+
+        res.json({ init_point: result.init_point, sandbox_init_point: result.sandbox_init_point });
+    } catch (error) {
+        await dbClient.query('ROLLBACK');
+        console.error('Error al reintentar pago:', error);
+        res.status(500).json({ error: 'Error al procesar la pasarela de pagos' });
+    } finally {
+        dbClient.release();
+    }
+};
+
+module.exports = { createPreference, webhook, getOrdenesAdmin, actualizarDespacho, getOrdenesUsuario, reintentarPago };

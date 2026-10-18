@@ -177,7 +177,6 @@ async function manejarLogin(e) {
     const password = document.getElementById('login-password').value;
 
     try {
-        // CORRECCIÓN: Comillas inclinadas (backticks)
         const res = await fetch(`${CONFIG.API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -208,7 +207,6 @@ async function manejarRegistro(e) {
     const direccion = document.getElementById('reg-direccion').value;
 
     try {
-        // CORRECCIÓN: Comillas inclinadas (backticks)
         const res = await fetch(`${CONFIG.API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -248,7 +246,6 @@ async function abrirModalPerfil() {
     modalPerfil.classList.remove('hidden');
 
     try {
-        // CORRECCIÓN: Comillas inclinadas (backticks)
         const res = await fetch(`${CONFIG.API_URL}/usuarios/${usuario.email}/ordenes`);
         const ordenes = await res.json();
 
@@ -269,11 +266,26 @@ async function abrirModalPerfil() {
 
                 const totalFormateado = Number(o.total || 0).toLocaleString('es-CL');
                 const esDespachado = o.despachado === 1;
+                
+                let badgeEstado = '';
+                let btnReintentar = '';
+
+                // Lógica visual dependiendo si la orden está PAGADA o PENDIENTE
+                if (o.estado === 'PAGADO') {
+                    badgeEstado = `<span class="font-bold ${esDespachado ? 'text-emerald-600' : 'text-amber-600'}">
+                                     ${esDespachado ? '✓ Despachado' : '⌛ En preparación'}
+                                   </span>`;
+                } else {
+                    badgeEstado = `<span class="font-bold text-rose-600">❌ Pago Incompleto</span>`;
+                    btnReintentar = `<button onclick="reintentarPago(${o.id})" class="mt-3 w-full bg-brand-800 hover:bg-brand-900 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-sm flex justify-center items-center gap-2">
+                                        💳 Reintentar Pago
+                                     </button>`;
+                }
 
                 return `
                     <div class="bg-white border rounded-xl p-4 text-xs space-y-2 shadow-sm">
                         <div class="flex justify-between items-center font-bold border-b pb-2">
-                            <span class="text-brand-900">Orden #${o.id} <span class="text-gray-400 font-normal">(${o.fecha || 'Reciente'})</span></span>
+                            <span class="text-brand-900">Orden #${o.id} <span class="text-gray-400 font-normal">(${o.fecha ? o.fecha.substring(0,10) : 'Reciente'})</span></span>
                             <span class="text-amber-800 text-sm">$${totalFormateado}</span>
                         </div>
                         <div class="text-gray-600">
@@ -282,12 +294,11 @@ async function abrirModalPerfil() {
                                 ${productosHTML}
                             </div>
                         </div>
-                        <div class="flex justify-between pt-1 text-gray-500">
+                        <div class="flex justify-between pt-1 text-gray-500 items-center">
                             <span>📍 ${o.cliente_direccion || 'Sin dirección'}</span>
-                            <span class="font-bold ${esDespachado ? 'text-emerald-600' : 'text-amber-600'}">
-                                ${esDespachado ? '✓ Despachado' : '⌛ En preparación'}
-                            </span>
+                            ${badgeEstado}
                         </div>
+                        ${btnReintentar}
                     </div>
                 `;
             }).join('');
@@ -340,7 +351,6 @@ async function actualizarPerfilUsuario(e, userId) {
     const direccion = document.getElementById('perfil-direccion').value;
 
     try {
-        // CORRECCIÓN: Comillas inclinadas (backticks)
         const res = await fetch(`${CONFIG.API_URL}/auth/profile/${userId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -398,3 +408,24 @@ function obtenerDatosInvitadoPorModal() {
         }
     });
 }
+
+// --- FUNCIÓN PARA REINTENTAR COMPRAS FALLIDAS ---
+window.reintentarPago = async function(ordenId) {
+    mostrarToast('Generando conexión segura con Mercado Pago...', 'info');
+    
+    try {
+        const res = await fetch(`${CONFIG.API_URL}/reintentar-pago/${ordenId}`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        
+        if (res.ok && (data.init_point || data.sandbox_init_point)) {
+            window.location.href = data.sandbox_init_point || data.init_point;
+        } else {
+            mostrarToast(data.error || 'No se pudo generar el pago. Revisa el stock.', 'error');
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        mostrarToast('Error de conexión', 'error');
+    }
+};
