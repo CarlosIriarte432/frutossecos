@@ -14,10 +14,13 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^13.0.3",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
     "dotenv": "^18.0.8",
     "express": "^5.2.1",
     "mercadopago": "^3.6.1",
+    "multer": "^2.4.0",
+    "multer-storage-cloudinary": "^4.0.0",
     "pdfkit": "^0.20.2",
     "pg": "^8.23.1",
     "resend": "^6.34.1"

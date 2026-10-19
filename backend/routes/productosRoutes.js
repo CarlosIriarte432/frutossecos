@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
-// Importamos las funciones desde el controlador
+const upload = require('../config/cloudinary'); 
 const { getProductos, crearProducto, actualizarProducto } = require('../controllers/productosController');
 
-// Definimos las URLs de la API para Productos
-router.get('/productos', getProductos);                  // Catálogo público
-router.post('/admin/productos', crearProducto);          // Admin crea producto
-router.patch('/admin/productos/:id', actualizarProducto);// Admin edita stock/precio
+router.get('/productos', getProductos);
+router.post('/admin/productos', upload.single('imagen'), crearProducto);
+
+// NUEVO: Ahora la ruta de edición también acepta imágenes de Multer
+router.patch('/admin/productos/:id', upload.single('imagen'), actualizarProducto);
 
 module.exports = router;
