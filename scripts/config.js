@@ -1,12 +1,16 @@
 // scripts/config.js
 
-// 1. El navegador revisa en qué URL estás actualmente
-const esLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+// Verifica si la página se está ejecutando en local
+const isLocalhost = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
 
-// 2. Creamos un objeto global de configuración
+// Asigna la URL del backend dinámicamente
+const API_URL = isLocalhost 
+    ? 'http://localhost:3000/api' 
+    : 'https://frutossecos.onrender.com/api';
+
+// Configuración Global
 const CONFIG = {
-    // Si estás en tu PC (local), usa el localhost. Si estás en internet, usa Render.
-    API_URL: esLocal 
-        ? 'http://localhost:3000/api' 
-        : 'https://frutossecos.onrender.com/api'
+    API_URL: API_URL,
+    // AQUÍ DEBES PEGAR TU TOKEN DE LOCATIONIQ
+    LOCATIONIQ_API_KEY: 'pk.7d6d2ec03fd7203f1bf7ae10b670456a' // <--- Reemplaza por tu token real
 };

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "setup": "node seed.js"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +14,6 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "better-sqlite3": "^13.0.3",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.6",
     "dotenv": "^18.0.8",
